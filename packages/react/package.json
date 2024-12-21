@@ -1,0 +1,27 @@
+{
+  "name": "@qlogic/react",
+  "version": "0.0.1",
+  "nx": {
+    "name": "react",
+    "projectType": "library",
+    "sourceRoot": "packages/react/src"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.esm.d.ts",
+      "import": "./dist/index.esm.js"
+    }
+  },
+  "types": "./dist/index.esm.d.ts",
+  "module": "./dist/index.esm.js",
+  "type": "module",
+  "main": "./dist/index.esm.js"
+}
