@@ -9,8 +9,7 @@ on:
       required: false
       type: boolean
   release:
-    types:
-      - published
+    types: [ published ]
 
 jobs:
   test:
