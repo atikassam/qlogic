@@ -57,5 +57,8 @@
   "workspaces": [
     "libs/**",
     "packages/**"
-  ]
+  ],
+  "repository": {
+    "url": "https://github.com/atikassam/qlogic"
+  }
 }
