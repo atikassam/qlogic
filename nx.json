@@ -16,6 +16,9 @@
   },
   "nxCloudId": "6766827cc60c400ee00d960e",
   "release": {
+    "version": {
+      "conventionalCommits": true
+    },
     "changelog": {
       "workspaceChangelog": {
         "file": false,
