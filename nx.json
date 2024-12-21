@@ -22,13 +22,11 @@
     "changelog": {
       "workspaceChangelog": {
         "file": false,
-        "createRelease": "github",
-        "renderOptions": {
-          "authors": true,
-          "mapAuthorsToGitHubUsernames": true,
-          "commitReferences": true,
-          "versionTitleDate": true
-        }
+        "createRelease": "github"
+      },
+      "git": {
+        "commit": false,
+        "stageChanges": false
       }
     }
   },
