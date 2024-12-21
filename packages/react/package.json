@@ -1,6 +1,6 @@
 {
   "name": "@qlogic/react",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "nx": {
     "name": "react",
     "projectType": "library",
