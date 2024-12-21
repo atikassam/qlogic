@@ -25,7 +25,12 @@ jobs:
           git config user.name "Atikur(GitHub Action)"
           git config user.email "atikassam@outlook.com"
       - run: npm install
-      - name: Version
+
+      - name: Run tests
+        run: npx nx run-many --all --target=test
+        shell: bash
+
+      - name: Create release
         shell: bash
         run: npx nx release --skip-publish
         env:
