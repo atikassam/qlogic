@@ -1,9 +1,10 @@
-name: release
+name: Release
 
 on:
-  - push:
-      branches:
-        - main
+  push:
+    branches:
+      - main
+
 jobs:
   release:
     runs-on: ubuntu-latest
