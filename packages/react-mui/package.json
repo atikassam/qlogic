@@ -1,6 +1,6 @@
 {
   "name": "@qlogic/react-mui",
-  "version": "0.0.1",
+  "version": "0.0.2-0",
   "nx": {
     "name": "react-mui",
     "projectType": "library",
