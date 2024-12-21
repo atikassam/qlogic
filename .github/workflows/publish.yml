@@ -35,7 +35,7 @@ jobs:
         shell: bash
 
       - name: Run tests
-        run: nx run-many --all --target=test
+        run: npx nx run-many --all --target=test
         shell: bash
 
       - name: Publish packages
