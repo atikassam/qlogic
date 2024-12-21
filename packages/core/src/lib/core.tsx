@@ -1,7 +1,7 @@
 export function Core() {
   return (
     <div>
-      <h1>Welcome to Core! Message new</h1>
+      <h1>Welcome to Core! Message new 5</h1>
     </div>
   );
 }
