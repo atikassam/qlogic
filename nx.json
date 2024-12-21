@@ -17,7 +17,9 @@
   "nxCloudId": "6766827cc60c400ee00d960e",
   "release": {
     "changelog": {
-      "projectChangelogs": {
+      "workspaceChangelog": {
+        "file": false,
+        "createRelease": "github",
         "renderOptions": {
           "authors": true,
           "mapAuthorsToGitHubUsernames": true,
