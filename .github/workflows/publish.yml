@@ -1,9 +1,16 @@
 # ./.github/workflows/publish.yml
 name: Publish
 
+
 on:
+  workflow_dispatch:
+    tags:
+      description: 'Test scenario tags'
+      required: false
+      type: boolean
   release:
-    types: [created]
+    types:
+      - published
 
 jobs:
   test:
