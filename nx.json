@@ -19,14 +19,14 @@
     "version": {
       "conventionalCommits": true
     },
+    "git": {
+      "commit": false,
+      "stageChanges": false
+    },
     "changelog": {
       "workspaceChangelog": {
         "file": false,
         "createRelease": "github"
-      },
-      "git": {
-        "commit": false,
-        "stageChanges": false
       }
     }
   },
