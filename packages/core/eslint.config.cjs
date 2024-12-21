@@ -1,22 +1,12 @@
+const nx = require('@nx/eslint-plugin');
 const baseConfig = require('../../eslint.config.cjs');
 
 module.exports = [
   ...baseConfig,
+  ...nx.configs['flat/react'],
   {
-    files: ['**/*.json'],
-    rules: {
-      '@nx/dependency-checks': [
-        'error',
-        {
-          ignoredFiles: [
-            '{projectRoot}/eslint.config.{js,cjs,mjs}',
-            '{projectRoot}/rollup.config.{js,ts,mjs,mts}',
-          ],
-        },
-      ],
-    },
-    languageOptions: {
-      parser: require('jsonc-eslint-parser'),
-    },
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    // Override or add rules here
+    rules: {},
   },
 ];
