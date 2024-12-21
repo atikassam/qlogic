@@ -1,10 +1,13 @@
 {
   "name": "@qlogic/core",
-  "version": "0.0.2-8",
+  "version": "0.0.2-9",
   "nx": {
     "name": "core",
     "projectType": "library",
     "sourceRoot": "packages/core/src"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist",
