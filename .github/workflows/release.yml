@@ -74,6 +74,8 @@ jobs:
                 pull_number: prNumber,
                 merge_method: 'squash',
               });
+            
+            
             } else {
               console.log('No pull request to merge.');
             }
