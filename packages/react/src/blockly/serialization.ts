@@ -8,6 +8,7 @@ import * as Blockly from 'blockly/core';
 
 const storageKey = 'mainWorkspace';
 
+declare const window: any;
 /**
  * Saves the state of the workspace to browser's local storage.
  * @param workspace Blockly workspace to save.
