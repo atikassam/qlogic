@@ -1,6 +1,6 @@
 {
   "name": "@qlogic/core",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "nx": {
     "name": "core",
     "projectType": "library",
