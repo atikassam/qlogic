@@ -2,6 +2,24 @@ const { withNx } = require('@nx/rollup/with-nx');
 const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
 
+function removeSourceMappingURL() {
+  return {
+    name: 'remove-source-mapping-url', // Name of the plugin
+    transform(code, id) {
+      if (id.endsWith('.js')) {
+        // Remove the //# sourceMappingURL comment
+        const updatedCode = code.replace(/\/\/# sourceMappingURL=.*\.map\s*$/gm, '');
+        return {
+          code: updatedCode,
+          map: null, // Don't generate a source map for this transformation
+        };
+      }
+      return null; // If not a .js file, skip
+    },
+  };
+}
+
+
 module.exports = withNx(
   {
     main: './src/index.ts',
@@ -15,6 +33,7 @@ module.exports = withNx(
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
     plugins: [
+      removeSourceMappingURL(),
       svg({
         svgo: false,
         titleProp: true,
@@ -23,6 +42,6 @@ module.exports = withNx(
       url({
         limit: 10000, // 10kB
       }),
-    ],
+    ]
   }
 );
