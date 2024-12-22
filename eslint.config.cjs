@@ -35,6 +35,9 @@ module.exports = [
       '**/*.mjs',
     ],
     // Override or add rules here
-    rules: {},
+    rules: {
+      // allow explicit any
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
   },
 ];

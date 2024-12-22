@@ -1,10 +1,9 @@
 import { render } from '@testing-library/react';
+import { QLogicBuilder } from './QLogicBuilder';
 
-import React from './react';
-
-describe('React', () => {
+describe('QLogicBuilder', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<React />);
+    const { baseElement } = render(<QLogicBuilder />);
     expect(baseElement).toBeTruthy();
   });
 });

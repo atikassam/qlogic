@@ -1,4 +1,6 @@
 import { ExpressionNode } from '../expression-node';
+import { expect } from '@storybook/jest';
+import * as console from 'node:console';
 
 class Expression extends ExpressionNode {
   type = 'expression';
@@ -39,7 +41,7 @@ describe('ExpressionNode', () => {
   it('Should throw error on accessing parent block', async () => {
     const expression = new Expression();
     try {
-      expression.parentBlock;
+      console.log(expression.parentBlock);
     } catch (e: any) {
       expect(e.message).toEqual('This expression node is not added to a block');
     }
