@@ -26,7 +26,7 @@ module.exports = withNx(
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
-    external: ['react', 'react-dom', 'react/jsx-runtime'],
+    external: ['react', 'react-dom', 'react/jsx-runtime', '@mui/material', '@emotion/styled', '@emotion/react'],
     format: ['esm'],
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
