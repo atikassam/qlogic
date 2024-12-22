@@ -34,7 +34,7 @@ jobs:
           BRANCH_NAME=release-$(date +'%Y%m%d%H%M%S')
           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
-          git push origin HEAD
+          git push --set-upstream origin $BRANCH_NAME
 
       - name: Switch to release branch and run release
         shell: bash
