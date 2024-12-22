@@ -3,7 +3,7 @@ import { Box, Stack, StackProps } from '@mui/material';
 import { initiateBlockLy } from '../../blockly';
 
 export type QLogicBuilderProps = {
-  ContainerProps: StackProps & {};
+  ContainerProps?: StackProps & {};
 };
 
 export function QLogicBuilder(props: QLogicBuilderProps) {
