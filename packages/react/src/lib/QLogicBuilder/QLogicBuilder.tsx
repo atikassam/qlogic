@@ -26,29 +26,27 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
   }
 
   return (
-    <body>
-      <div className="app-container">
-        <Box id="blocklyDiv" className="main" ref={blocklyDivRef} height={400}/>
-        <div id="outputDiv" className="main">
-          <select id="generateDropdown" onChange={regenerate}>
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="php">PHP</option>
-            <option value="lua">Lua</option>
-            <option value="dart">Dart</option>
-          </select>
-          <br className="next-line" />
-          <select id="languageDropdown" onChange={languageChange}></select>
-          <pre id="codeHolder" className="prettyprint" dir="ltr"></pre>
-        </div>
-        <div id="playButton" className="play-button" onClick={execute}>
-          <span className="material-icons" aria-hidden="true">
-            play_circle_outlined
-          </span>
-          Run
-        </div>
+    <div className="app-container">
+      <Box id="blocklyDiv" className="main" ref={blocklyDivRef} height={400} />
+      <div id="outputDiv" className="main">
+        <select id="generateDropdown" onChange={regenerate}>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="php">PHP</option>
+          <option value="lua">Lua</option>
+          <option value="dart">Dart</option>
+        </select>
+        <br className="next-line" />
+        <select id="languageDropdown" onChange={languageChange}></select>
+        <pre id="codeHolder" className="prettyprint" dir="ltr"></pre>
       </div>
-    </body>
+      <div id="playButton" className="play-button" onClick={execute}>
+        <span className="material-icons" aria-hidden="true">
+          play_circle_outlined
+        </span>
+        Run
+      </div>
+    </div>
   );
 }
 

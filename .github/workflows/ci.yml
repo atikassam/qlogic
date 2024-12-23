@@ -41,5 +41,5 @@ jobs:
       - run: npx nx affected -t lint test build
 
       - name: Run tests
-        run: npx nx run-many --all --target=test
+        run: npx nx run-many --all --target=test --no-cloud
         shell: bash

@@ -4,6 +4,10 @@
 /* eslint-disable no-unused-vars */
 import * as Blockly from 'blockly';
 /// Add reference for dom definitions
+import { javascriptGenerator } from 'blockly/javascript';
+import { LANGUAGE_NAME, LANGUAGE_RTL, msgs } from './msgs';
+import { toolboxJson } from './toolbox';
+import './index.css';
 
 /**
  * @license
@@ -15,10 +19,6 @@ import * as Blockly from 'blockly';
  * @fileoverview JavaScript for Blockly's DevSite demo.
  */
 'use strict';
-
-import { LANGUAGE_NAME, LANGUAGE_RTL, msgs } from './msgs';
-import { toolboxJson } from './toolbox';
-import './index.css'
 
 let language = 'en'; // Default to English.
 
@@ -47,15 +47,15 @@ export function init() {
    * @param a
    * @param b
    */
-  function comp_(a, b) {
+  function comp_(a: [string, string], b: [string, string]) {
     // Sort based on first argument ('English', 'Русский', '简体字', etc).
     if (a[0] > b[0]) return 1;
     if (a[0] < b[0]) return -1;
     return 0;
   }
-  languages.sort(comp_);
+  languages.sort(comp_ as any);
   // Populate the language selection dropdown.
-  const languageMenu = document.getElementById('languageDropdown');
+  const languageMenu = document.getElementById('languageDropdown') as HTMLSelectElement;
   for (let i = 0; i < languages.length; i++) {
     const tuple = languages[i];
     const lang = tuple[tuple.length - 1];
@@ -72,7 +72,7 @@ export function init() {
   try {
     loadOnce = window.sessionStorage.getItem('loadOnceBlocks');
     window.sessionStorage.removeItem('loadOnceBlocks');
-    loadOnce = JSON.parse(loadOnce);
+    if (loadOnce) loadOnce = JSON.parse(loadOnce);
   } catch (e) {
     // Storage can be flakey.
     console.log(e);
@@ -105,6 +105,7 @@ export function init() {
     },
     trashcan: false,
     theme: Blockly.Theme.defineTheme('modest', {
+      name: 'modest',
       fontStyle: {
         family: 'Google Sans',
         weight: 'bold',
@@ -114,42 +115,42 @@ export function init() {
         logic_blocks: {
           colourPrimary: '#D1C4E9',
           colourSecondary: '#EDE7F6',
-          colorTertiary: '#B39DDB',
+          colourTertiary: '#B39DDB',
         },
         loop_blocks: {
           colourPrimary: '#A5D6A7',
           colourSecondary: '#E8F5E9',
-          colorTertiary: '#66BB6A',
+          colourTertiary: '#66BB6A',
         },
         math_blocks: {
           colourPrimary: '#2196F3',
           colourSecondary: '#1E88E5',
-          colorTertiary: '#0D47A1',
+          colourTertiary: '#0D47A1',
         },
         text_blocks: {
           colourPrimary: '#FFCA28',
           colourSecondary: '#FFF8E1',
-          colorTertiary: '#FF8F00',
+          colourTertiary: '#FF8F00',
         },
         list_blocks: {
           colourPrimary: '#4DB6AC',
           colourSecondary: '#B2DFDB',
-          colorTertiary: '#009688',
+          colourTertiary: '#009688',
         },
         variable_blocks: {
           colourPrimary: '#EF9A9A',
           colourSecondary: '#FFEBEE',
-          colorTertiary: '#EF5350',
+          colourTertiary: '#EF5350',
         },
         variable_dynamic_blocks: {
           colourPrimary: '#EF9A9A',
           colourSecondary: '#FFEBEE',
-          colorTertiary: '#EF5350',
+          colourTertiary: '#EF5350',
         },
         procedure_blocks: {
           colourPrimary: '#D7CCC8',
           colourSecondary: '#EFEBE9',
-          colorTertiary: '#BCAAA4',
+          colourTertiary: '#BCAAA4',
         },
       },
     }),
@@ -188,7 +189,7 @@ export function languageChange() {
     console.log(e);
   }
 
-  const newLang = document.getElementById('languageDropdown').value;
+  const newLang = (document.getElementById('languageDropdown') as HTMLSelectElement).value;
   window.location.search = '?hl=' + encodeURIComponent(newLang);
 }
 
@@ -198,20 +199,20 @@ export function languageChange() {
  * @param _e
  */
 function regenerate(_e: any) {
-  if (Blockly.getMainWorkspace().isDragging()) {
+  if ((Blockly.getMainWorkspace() as any).isDragging()) {
     return; // Don't update code mid-drag.
   }
-  const generateLang = document.getElementById('generateDropdown').value;
-  const generator = window[generateLang][`${generateLang}Generator`];
-  const playButton = document.getElementById('playButton');
+  const generateLang = (document.getElementById('generateDropdown') as HTMLSelectElement).value;
+  const generator = javascriptGenerator;// (Blockly as any)[generateLang][`${generateLang}Generator`];
+  const playButton = document.getElementById('playButton') as HTMLButtonElement;
   playButton.style.display = generateLang === 'javascript' ? 'block' : 'none';
   const code = generator.workspaceToCode(Blockly.getMainWorkspace());
-  const codeHolder = document.getElementById('codeHolder');
+  const codeHolder = document.getElementById('codeHolder') as HTMLElement;
   codeHolder.innerHTML = ''; // Delete old code.
   codeHolder.classList.remove('prettyprinted');
   codeHolder.appendChild(document.createTextNode(code));
-  if (typeof PR === 'object') {
-    PR.prettyPrint();
+  if (typeof (window as any).PR === 'object') {
+    (window as any).PR.prettyPrint();
   }
 }
 
@@ -220,7 +221,7 @@ function regenerate(_e: any) {
  */
 export function execute() {
   const initFunc = function (interpreter: any, globalObject: any) {
-    const alertWrapper = function alert(text) {
+    const alertWrapper = function alert(text: string) {
       return window.alert(arguments.length ? text : '');
     };
     interpreter.setProperty(
@@ -229,7 +230,7 @@ export function execute() {
       interpreter.createNativeFunction(alertWrapper),
     );
 
-    const promptWrapper = function prompt(text, defaultValue) {
+    const promptWrapper = function prompt(text: string, defaultValue: string) {
       return window.prompt(
         arguments.length > 0 ? text : '',
         arguments.length > 1 ? defaultValue : '',
@@ -242,10 +243,10 @@ export function execute() {
     );
   };
 
-  const code = javascript.javascriptGenerator.workspaceToCode(
+  const code = (window as any).javascript.javascriptGenerator.workspaceToCode(
     Blockly.getMainWorkspace(),
   );
-  const myInterpreter = new Interpreter(code, initFunc);
+  const myInterpreter = new (window as any).Interpreter(code, initFunc);
   let stepsAllowed = 10000;
   while (myInterpreter.step() && stepsAllowed) {
     stepsAllowed--;

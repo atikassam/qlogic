@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/jest",
     "jsx": "react-jsx",
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler"
   },
