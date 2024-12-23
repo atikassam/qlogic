@@ -15,6 +15,7 @@
   ],
   "exports": {
     "./package.json": "./package.json",
+    "./index.esm.css": "./dist/index.esm.css",
     ".": {
       "types": "./dist/index.esm.d.ts",
       "import": "./dist/index.esm.js"
