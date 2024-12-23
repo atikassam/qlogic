@@ -27,7 +27,7 @@ jobs:
       - run: npm install
 
       - name: Run tests
-        run: npx nx run-many --all --target=test
+        run: npx nx run-many --all --target=test  --no-cloud
         shell: bash
 
       - name: Create release
