@@ -1,6 +1,7 @@
 const { withNx } = require('@nx/rollup/with-nx');
 const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
+const css = require('rollup-plugin-import-css')
 
 function removeSourceMappingURL() {
   return {
@@ -19,7 +20,6 @@ function removeSourceMappingURL() {
   };
 }
 
-
 module.exports = withNx(
   {
     main: './src/index.ts',
@@ -34,6 +34,7 @@ module.exports = withNx(
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
     plugins: [
       removeSourceMappingURL(),
+      css(),
       svg({
         svgo: false,
         titleProp: true,
