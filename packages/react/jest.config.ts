@@ -11,5 +11,8 @@ export default {
   globals: {
     TextEncoder: require("util").TextEncoder,
     TextDecoder: require("util").TextDecoder
+  },
+  moduleNameMapper: {
+    'react-syntax-highlighter': require.resolve('react-syntax-highlighter'),
   }
 };

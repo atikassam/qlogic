@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
-  BoxProps, Button,
+  Button,
   Card,
   CardProps,
   Divider,
-  Grid2 as Grid, IconButton,
+  Grid2 as Grid,
   Stack,
   Tab,
-  Tabs
+  Tabs,
 } from '@mui/material';
-import { execute, init } from '../../blockly';
+import { init } from '../../blockly';
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import * as Blockly from 'blockly';
@@ -35,8 +35,9 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
       return; // Don't update code mid-drag.
     }
 
-    const generator = javascriptGenerator; // (Blockly as any)[generateLang][`${generateLang}Generator`];
-    const code = generator.workspaceToCode(Blockly.getMainWorkspace());
+    const code = javascriptGenerator.workspaceToCode(
+      Blockly.getMainWorkspace()
+    );
     setCode(code);
   }, []);
 
