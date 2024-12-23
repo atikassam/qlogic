@@ -12,7 +12,6 @@ type Story = StoryObj<typeof QLogicBuilder>;
 
 export const Primary = {
   args: {
-    ContainerProps: { sx: { width: '100%', height: '200px' } },
   },
 };
 

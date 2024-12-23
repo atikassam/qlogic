@@ -1,15 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Google+Sans:400,500');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-body {
-  background: white !important;
-  margin: 0;
-}
 
 .app-container {
   --bg: white;
-  --blockly-margin: 28px 0 28px 28px;
-  --demo-height: 352px;
   --font-family: 'Google Sans';
   --output-max-height: 100%;
   --output-max-width: 392px;
@@ -20,9 +14,6 @@ body {
 
 @media screen and (max-width: 840px) {
   .app-container {
-    --blockly-height: 100%;
-    --blockly-margin: 28px 28px 0;
-    --demo-height: 600px;
     --output-max-height: 180px;
     --output-max-width: 100%;
     --output-min-width: unset;
@@ -36,19 +27,13 @@ body {
 }
 
 .app-container {
-  background-color: #f8f9fa;
-  border-radius: 30px;
   display: flex;
-  height: var(--demo-height);
   overflow: visible;
   width: 100%;
 }
 
 #blocklyDiv {
   background: var(--bg);
-  height: var(--blockly-height);
-  margin: var(--blockly-margin);
-  padding: 20px;
   width: 100%;
 }
 
@@ -137,12 +122,6 @@ option {
   overflow: scroll;
   padding: 20px;
   width: 100%;
-}
-
-hr {
-  border: 0;
-  clear: both;
-  height: 1px;
 }
 
 .next-line {

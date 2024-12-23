@@ -1,52 +1,121 @@
-import { ChangeEvent, useEffect, useRef } from 'react';
-import { Box, BoxProps } from '@mui/material';
-import { execute, init, languageChange } from '../../blockly';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Box,
+  BoxProps, Button,
+  Card,
+  CardProps,
+  Divider,
+  Grid2 as Grid, IconButton,
+  Stack,
+  Tab,
+  Tabs
+} from '@mui/material';
+import { execute, init } from '../../blockly';
+import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import * as Blockly from 'blockly';
+import { javascriptGenerator } from 'blockly/javascript';
 
 export type QLogicBuilderProps = {
-  ContainerProps?: BoxProps & {};
-  noBorder?: boolean;
-  background?: string;
+  ContainerProps?: CardProps & {};
+  showCode?: boolean;
+  height?: number;
 };
 
 export function QLogicBuilder(props: QLogicBuilderProps) {
+  const { ContainerProps, showCode, height = 400 } = props;
   const blocklyDivRef = useRef<HTMLDivElement>(null);
-  const isInitialized = useRef(false); // To ensure the initialization happens only once
+  const isInitialized = useRef(false);
+  const [workspace, setWorkspace] = useState<Blockly.Workspace | null>(null);
+  const [code, setCode] = useState('');
+  const [activeTab, setActiveTab] = useState<'logic' | 'code'>('logic');
+
+  const regenerate = useCallback((_e: any) => {
+    if ((Blockly.getMainWorkspace() as any).isDragging()) {
+      return; // Don't update code mid-drag.
+    }
+
+    const generator = javascriptGenerator; // (Blockly as any)[generateLang][`${generateLang}Generator`];
+    const code = generator.workspaceToCode(Blockly.getMainWorkspace());
+    setCode(code);
+  }, []);
 
   useEffect(() => {
     if (isInitialized.current) return; // Skip if already initialized
 
     if (blocklyDivRef.current) {
-      init();
+      setWorkspace(init());
       isInitialized.current = true; // Mark as initialized
     }
-  }, []);
+  }, [blocklyDivRef.current]);
 
-  function regenerate(event: ChangeEvent<HTMLSelectElement>): void {
-    throw new Error('Function not implemented.');
-  }
+  useEffect(() => {
+    if (!workspace) return;
+    workspace.addChangeListener(regenerate);
+
+    return () => {
+      if (!workspace) return;
+      workspace.removeChangeListener(regenerate);
+    };
+  }, [workspace]);
 
   return (
-    <div className="app-container">
-      <Box id="blocklyDiv" className="main" ref={blocklyDivRef} height={400} />
-      <div id="outputDiv" className="main">
-        <select id="generateDropdown" onChange={regenerate}>
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="php">PHP</option>
-          <option value="lua">Lua</option>
-          <option value="dart">Dart</option>
-        </select>
-        <br className="next-line" />
-        <select id="languageDropdown" onChange={languageChange}></select>
-        <pre id="codeHolder" className="prettyprint" dir="ltr"></pre>
-      </div>
-      <div id="playButton" className="play-button" onClick={execute}>
-        <span className="material-icons" aria-hidden="true">
-          play_circle_outlined
-        </span>
-        Run
-      </div>
-    </div>
+    <Card
+      variant={'outlined'}
+      sx={{ p: 2, boxSizing: 'border-box' }}
+      {...ContainerProps}
+      className="app-container"
+    >
+      <Stack direction={'column'} width={'100%'} spacing={2}>
+        {showCode && (
+          <Grid size={12}>
+            <Box>
+              <Stack direction={"row"} alignItems={'center'}>
+                <Tabs onChange={(_e, v) => setActiveTab(v)} value={activeTab}>
+                  <Tab label="Logic" value={'logic'} />
+                  <Tab label="Code" value={'code'} />
+                </Tabs>
+                <Box flex={1}/>
+                <Button variant={'contained'} disableElevation>Run</Button>
+              </Stack>
+              <Divider />
+            </Box>
+          </Grid>
+        )}
+        <Box
+          display={
+            !showCode ? undefined : activeTab === 'logic' ? undefined : 'none'
+          }
+          id="blocklyDiv"
+          className="main"
+          ref={blocklyDivRef}
+          height={height}
+        />
+        {activeTab === 'code' && showCode && (
+          <Card
+            component={Box}
+            bgcolor={(t) => t.palette.action.hover}
+            p={1}
+            boxSizing={'border-box'}
+            width={'100%'}
+            height={height}
+            variant={'outlined'}
+          >
+            <SyntaxHighlighter
+              language="javascript"
+              style={a11yLight}
+              customStyle={{
+                padding: 16,
+                margin: 0,
+                borderRadius: 16,
+              }}
+            >
+              {code}
+            </SyntaxHighlighter>
+          </Card>
+        )}
+      </Stack>
+    </Card>
   );
 }
 

@@ -4,7 +4,6 @@
 /* eslint-disable no-unused-vars */
 import * as Blockly from 'blockly';
 /// Add reference for dom definitions
-import { javascriptGenerator } from 'blockly/javascript';
 import { LANGUAGE_NAME, LANGUAGE_RTL, msgs } from './msgs';
 import { toolboxJson } from './toolbox';
 import './index.css';
@@ -37,35 +36,6 @@ let language = 'en'; // Default to English.
  * Initialize the page once everything is loaded.
  */
 export function init() {
-  // Sort languages alphabetically.
-  const languages = [];
-  for (const lang in LANGUAGE_NAME) {
-    languages.push([LANGUAGE_NAME[lang], lang]);
-  }
-  /**
-   *
-   * @param a
-   * @param b
-   */
-  function comp_(a: [string, string], b: [string, string]) {
-    // Sort based on first argument ('English', 'Русский', '简体字', etc).
-    if (a[0] > b[0]) return 1;
-    if (a[0] < b[0]) return -1;
-    return 0;
-  }
-  languages.sort(comp_ as any);
-  // Populate the language selection dropdown.
-  const languageMenu = document.getElementById('languageDropdown') as HTMLSelectElement;
-  for (let i = 0; i < languages.length; i++) {
-    const tuple = languages[i];
-    const lang = tuple[tuple.length - 1];
-    const option = new Option(tuple[0], lang);
-    if (lang === language) {
-      option.selected = true;
-    }
-    languageMenu.options.add(option);
-  }
-
   // Changing languages involves reloading the page.  To not lose the blocks,
   // they were stored in sessionStorage.  Here we retrieve that data.
   let loadOnce = null;
@@ -156,8 +126,9 @@ export function init() {
     }),
   });
   Blockly.serialization.workspaces.load(loadOnce || startBlocks, workspace);
-  workspace.addChangeListener(regenerate);
   workspace.zoomToFit();
+
+  return workspace;
 }
 
 /**
@@ -193,28 +164,6 @@ export function languageChange() {
   window.location.search = '?hl=' + encodeURIComponent(newLang);
 }
 
-/**
- * Regenerate the blocks into a (computer) language.
- * Called when the blocks change, or when the target language changes.
- * @param _e
- */
-function regenerate(_e: any) {
-  if ((Blockly.getMainWorkspace() as any).isDragging()) {
-    return; // Don't update code mid-drag.
-  }
-  const generateLang = (document.getElementById('generateDropdown') as HTMLSelectElement).value;
-  const generator = javascriptGenerator;// (Blockly as any)[generateLang][`${generateLang}Generator`];
-  const playButton = document.getElementById('playButton') as HTMLButtonElement;
-  playButton.style.display = generateLang === 'javascript' ? 'block' : 'none';
-  const code = generator.workspaceToCode(Blockly.getMainWorkspace());
-  const codeHolder = document.getElementById('codeHolder') as HTMLElement;
-  codeHolder.innerHTML = ''; // Delete old code.
-  codeHolder.classList.remove('prettyprinted');
-  codeHolder.appendChild(document.createTextNode(code));
-  if (typeof (window as any).PR === 'object') {
-    (window as any).PR.prettyPrint();
-  }
-}
 
 /**
  * Generate JavaScript from the blocks, then execute it using JS-Interpreter.
