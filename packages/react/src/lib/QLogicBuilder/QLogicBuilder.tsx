@@ -5,7 +5,6 @@ import {
   Card,
   CardProps,
   Divider,
-  Grid2 as Grid,
   Stack,
   Tab,
   Tabs,
@@ -69,19 +68,17 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
     >
       <Stack direction={'column'} width={'100%'} spacing={2}>
         {showCode && (
-          <Grid size={12}>
-            <Box>
-              <Stack direction={"row"} alignItems={'center'}>
-                <Tabs onChange={(_e, v) => setActiveTab(v)} value={activeTab}>
-                  <Tab label="Logic" value={'logic'} />
-                  <Tab label="Code" value={'code'} />
-                </Tabs>
-                <Box flex={1}/>
-                <Button variant={'contained'} disableElevation>Run</Button>
-              </Stack>
-              <Divider />
-            </Box>
-          </Grid>
+          <Box>
+            <Stack direction={"row"} alignItems={'center'}>
+              <Tabs onChange={(_e, v) => setActiveTab(v)} value={activeTab}>
+                <Tab label="Logic" value={'logic'} />
+                <Tab label="Code" value={'code'} />
+              </Tabs>
+              <Box flex={1}/>
+              <Button variant={'contained'} disableElevation>Run</Button>
+            </Stack>
+            <Divider />
+          </Box>
         )}
         <Box
           display={
