@@ -1,31 +1,52 @@
 import * as Blockly from 'blockly';
 
-export const theme = Blockly.Theme.defineTheme('themeName', {
-  name: 'QLogic',
-  base: Blockly.Themes.Classic,
-  'blockStyles': {
-    'logic_blocks': { 'colourPrimary': '#99caea' }, // Light blue for Logic
-    'loop_blocks': { 'colourPrimary': '#B5E1A0' }, // Light green for Loops
-    'math_blocks': { 'colourPrimary': '#D5A6FF' }, // Purple for Math
-    'text_blocks': { 'colourPrimary': '#FFD966' }, // Yellow for Text
-    'list_blocks': { 'colourPrimary': '#bde5ef' }, // Aqua for Lists
-    'colour_blocks': { 'colourPrimary': '#D9A3FF' }, // Light violet for Colour
-    'variable_blocks': { 'colourPrimary': '#FFB6C1' }, // Pink for Variables
-    'function_blocks': { 'colourPrimary': '#D9B4FF' }, // Lilac for Functions
+export const theme = Blockly.Theme.defineTheme('modest', {
+  name: 'modest',
+  fontStyle: {
+    family: 'Google Sans',
+    weight: 'bold',
+    size: 16,
   },
-  'categoryStyles': {
-    'logic_category': { 'colour': '#95b9d1' },
-    'loop_category': { 'colour': '#B5E1A0' },
-    'math_category': { 'colour': '#D5A6FF' },
-    'text_category': { 'colour': '#FFD966' },
-    'list_category': { 'colour': '#839ba1' },
-    'colour_category': { 'colour': '#D9A3FF' },
-    'variable_category': { 'colour': '#FFB6C1' },
-    'function_category': { 'colour': '#D9B4FF' },
+  blockStyles: {
+    logic_blocks: {
+      colourPrimary: '#D1C4E9',
+      colourSecondary: '#EDE7F6',
+      colourTertiary: '#B39DDB',
+    },
+    loop_blocks: {
+      colourPrimary: '#A5D6A7',
+      colourSecondary: '#E8F5E9',
+      colourTertiary: '#66BB6A',
+    },
+    math_blocks: {
+      colourPrimary: '#2196F3',
+      colourSecondary: '#1E88E5',
+      colourTertiary: '#0D47A1',
+    },
+    text_blocks: {
+      colourPrimary: '#FFCA28',
+      colourSecondary: '#FFF8E1',
+      colourTertiary: '#FF8F00',
+    },
+    list_blocks: {
+      colourPrimary: '#4DB6AC',
+      colourSecondary: '#B2DFDB',
+      colourTertiary: '#009688',
+    },
+    variable_blocks: {
+      colourPrimary: '#EF9A9A',
+      colourSecondary: '#FFEBEE',
+      colourTertiary: '#EF5350',
+    },
+    variable_dynamic_blocks: {
+      colourPrimary: '#EF9A9A',
+      colourSecondary: '#FFEBEE',
+      colourTertiary: '#EF5350',
+    },
+    procedure_blocks: {
+      colourPrimary: '#D7CCC8',
+      colourSecondary: '#EFEBE9',
+      colourTertiary: '#BCAAA4',
+    },
   },
-  'fontStyle': {
-    'family': 'Arial, sans-serif',
-    'weight': 'normal',
-    'size': 12,
-  },
-});
+})

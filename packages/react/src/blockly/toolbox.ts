@@ -1,422 +1,384 @@
 /**
  * @license
- * Copyright 2023 Google LLC
+ * Copyright 2022 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
-This toolbox contains nearly every single built-in block that Blockly offers,
-in addition to the custom block 'add_text' this sample app adds.
-You probably don't need every single block, and should consider either rewriting
-your toolbox from scratch, or carefully choosing whether you need each block
-listed here.
-*/
+/**
+ * @fileoverview Toolbox for Blockly's DevSite demo.
+ */
+'use strict';
 
-export const toolbox = {
-  kind: 'categoryToolbox',
+// eslint-disable-next-line no-unused-vars, prefer-const
+export let toolboxJson = {
   contents: [
     {
-      kind: 'category',
+      // Logic Category
+      kind: 'CATEGORY',
       name: 'Logic',
-      categorystyle: 'logic_category',
+      colour: 262,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowLogic',
+      },
       contents: [
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_if',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'logic_compare',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'logic_operation',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'logic_negate',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'logic_boolean',
         },
         {
-          kind: 'block',
-          type: 'logic_null',
-        },
-        {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'logic_ternary',
         },
       ],
     },
+
     {
-      kind: 'category',
+      // Loops Category
+      kind: 'CATEGORY',
       name: 'Loops',
-      categorystyle: 'loop_category',
+      colour: 122,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowLoops',
+      },
       contents: [
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_repeat_ext',
           inputs: {
             TIMES: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 10,
-                },
+                fields: {NUM: 10},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_whileUntil',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_for',
           inputs: {
             FROM: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
             TO: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 10,
-                },
+                fields: {NUM: 10},
               },
             },
             BY: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_forEach',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'controls_flow_statements',
         },
       ],
     },
+
     {
-      kind: 'category',
+      // Math Category
+      kind: 'CATEGORY',
       name: 'Math',
-      categorystyle: 'math_category',
+      colour: 206,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowMath',
+      },
       contents: [
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'math_number',
-          fields: {
-            NUM: 123,
-          },
+          fields: {NUM: 123},
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'math_arithmetic',
           inputs: {
             A: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
             B: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'math_single',
           inputs: {
             NUM: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 9,
-                },
+                fields: {NUM: 9},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'math_trig',
           inputs: {
             NUM: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 45,
-                },
+                fields: {NUM: 45},
               },
             },
           },
         },
         {
-          kind: 'block',
-          type: 'math_constant',
-        },
-        {
-          kind: 'block',
-          type: 'math_number_property',
-          inputs: {
-            NUMBER_TO_CHECK: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 0,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_round',
-          fields: {
-            OP: 'ROUND',
-          },
-          inputs: {
-            NUM: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 3.1,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_on_list',
-          fields: {
-            OP: 'SUM',
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_modulo',
-          inputs: {
-            DIVIDEND: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 64,
-                },
-              },
-            },
-            DIVISOR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 10,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_constrain',
-          inputs: {
-            VALUE: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 50,
-                },
-              },
-            },
-            LOW: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
-              },
-            },
-            HIGH: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 100,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_random_int',
-          inputs: {
-            FROM: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
-              },
-            },
-            TO: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 100,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'math_random_float',
-        },
-        {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'math_atan2',
           inputs: {
             X: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
             Y: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
+                fields: {NUM: 1},
               },
             },
           },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_constant',
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_number_property',
+          inputs: {
+            NUMBER_TO_CHECK: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 0},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_round',
+          inputs: {
+            NUM: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 3.1},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_on_list',
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_modulo',
+          inputs: {
+            DIVIDEND: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 64},
+              },
+            },
+            DIVISOR: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 10},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_constrain',
+          inputs: {
+            VALUE: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 50},
+              },
+            },
+            LOW: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 1},
+              },
+            },
+            HIGH: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 100},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_random_int',
+          inputs: {
+            FROM: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 1},
+              },
+            },
+            TO: {
+              shadow: {
+                type: 'math_number',
+                fields: {NUM: 100},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'math_random_float',
         },
       ],
     },
+
     {
-      kind: 'category',
+      // Text Category
+      kind: 'CATEGORY',
       name: 'Text',
-      categorystyle: 'text_category',
+      colour: 46,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowText',
+      },
       contents: [
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_join',
+          extraState: {itemCount: 2},
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_append',
+          fields: {
+            VAR: {
+              name: 'text',
+              type: 'String',
+            },
+          },
           inputs: {
             TEXT: {
-              shadow: {
-                type: 'text',
-                fields: {
-                  TEXT: '',
-                },
-              },
+              shadow: {type: 'text'},
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_length',
           inputs: {
             VALUE: {
               shadow: {
                 type: 'text',
-                fields: {
-                  TEXT: 'abc',
-                },
+                fields: {TEXT: 'abc'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_isEmpty',
+          inputs: {
+            VALUE: {
+              shadow: {type: 'text'},
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'text_indexOf',
           inputs: {
             VALUE: {
               shadow: {
                 type: 'text',
-                fields: {
-                  TEXT: '',
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'text_indexOf',
-          inputs: {
-            VALUE: {
-              block: {
-                type: 'variables_get',
+                fields: {TEXT: 'abc'},
               },
             },
             FIND: {
               shadow: {
                 type: 'text',
-                fields: {
-                  TEXT: 'abc',
-                },
+                fields: {TEXT: 'b'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_charAt',
           inputs: {
             VALUE: {
-              block: {
-                type: 'variables_get',
+              shadow: {
+                type: 'text',
+                fields: {TEXT: 'abc'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_getSubstring',
           inputs: {
             STRING: {
-              block: {
-                type: 'variables_get',
+              shadow: {
+                type: 'text',
+                fields: {TEXT: 'abc'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_changeCase',
           inputs: {
             TEXT: {
@@ -430,200 +392,303 @@ export const toolbox = {
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_trim',
           inputs: {
             TEXT: {
               shadow: {
                 type: 'text',
-                fields: {
-                  TEXT: 'abc',
-                },
+                fields: {TEXT: ' abc '},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_count',
           inputs: {
             SUB: {
               shadow: {
                 type: 'text',
+                fields: {TEXT: 'a'},
               },
             },
             TEXT: {
               shadow: {
                 type: 'text',
+                fields: {TEXT: 'banana'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_replace',
           inputs: {
             FROM: {
               shadow: {
                 type: 'text',
+                fields: {TEXT: 'm'},
               },
             },
             TO: {
               shadow: {
                 type: 'text',
+                fields: {TEXT: 'w'},
               },
             },
             TEXT: {
               shadow: {
                 type: 'text',
+                fields: {TEXT: 'mom'},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'text_reverse',
           inputs: {
             TEXT: {
               shadow: {
                 type: 'text',
+                fields: {
+                  TEXT: 'cba',
+                },
               },
             },
           },
         },
         {
-          kind: 'block',
-          type: 'add_text',
+          kind: 'label',
+          text: '',
+        },
+
+        {
+          kind: 'BLOCK',
+          type: 'text_print',
           inputs: {
             TEXT: {
               shadow: {
                 type: 'text',
-                fields: {
-                  TEXT: 'abc',
-                },
+                fields: {TEXT: 'abc'},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'text_prompt_ext',
+          inputs: {
+            TEXT: {
+              shadow: {
+                type: 'text',
+                fields: {TEXT: 'abc'},
               },
             },
           },
         },
       ],
     },
+
     {
-      kind: 'category',
+      // Lists Category
+      kind: 'CATEGORY',
       name: 'Lists',
-      categorystyle: 'list_category',
+      colour: 172,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowLists',
+      },
       contents: [
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_create_with',
+          extraState: {itemCount: 0},
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_create_with',
+          extraState: {itemCount: 3},
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_repeat',
           inputs: {
             NUM: {
               shadow: {
                 type: 'math_number',
-                fields: {
-                  NUM: 5,
-                },
+                fields: {NUM: 5},
               },
             },
           },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_length',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_isEmpty',
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
           type: 'lists_indexOf',
           inputs: {
             VALUE: {
               block: {
                 type: 'variables_get',
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'lists_getIndex',
-          inputs: {
-            VALUE: {
-              block: {
-                type: 'variables_get',
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'lists_setIndex',
-          inputs: {
-            LIST: {
-              block: {
-                type: 'variables_get',
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'lists_getSublist',
-          inputs: {
-            LIST: {
-              block: {
-                type: 'variables_get',
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'lists_split',
-          inputs: {
-            DELIM: {
-              shadow: {
-                type: 'text',
                 fields: {
-                  TEXT: ',',
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
                 },
               },
             },
           },
         },
         {
-          kind: 'block',
-          type: 'lists_sort',
+          kind: 'BLOCK',
+          type: 'lists_getIndex',
+          inputs: {
+            VALUE: {
+              block: {
+                type: 'variables_get',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
         },
         {
-          kind: 'block',
+          kind: 'BLOCK',
+          type: 'lists_setIndex',
+          inputs: {
+            LIST: {
+              block: {
+                type: 'variables_get',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'lists_getSublist',
+          inputs: {
+            LIST: {
+              block: {
+                type: 'variables_get',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'lists_getSublist',
+          inputs: {
+            LIST: {
+              block: {
+                type: 'variables_get',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'lists_split',
+          inputs: {
+            DELIM: {
+              shadow: {
+                type: 'text',
+                fields: {TEXT: ','},
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
+          type: 'lists_sort',
+          inputs: {
+            LIST: {
+              block: {
+                type: 'variables_get',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'BLOCK',
           type: 'lists_reverse',
+          inputs: {
+            LIST: {
+              block: {
+                type: 'variables_get',
+                id: 'Jyppgi#k[zERF`IH{gqY',
+                fields: {
+                  VAR: {
+                    name: '%{BKY_VARIABLES_DEFAULT_NAME}',
+                    type: 'List',
+                  },
+                },
+              },
+            },
+          },
         },
       ],
     },
+
     {
-      kind: 'sep',
+      kind: 'SEP',
     },
+
     {
-      kind: 'category',
-      name: 'Variables',
-      categorystyle: 'variable_category',
+      // Variables Category
+      kind: 'CATEGORY',
       custom: 'VARIABLE',
+      name: 'Variables',
+      colour: 4,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowVariables',
+      },
     },
+
     {
-      kind: 'category',
-      name: 'Functions',
-      categorystyle: 'procedure_category',
+      // Procedures Category
+      kind: 'CATEGORY',
       custom: 'PROCEDURE',
+      name: 'Procedures',
+      colour: 16,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowProcedures',
+      },
     },
   ],
 };
