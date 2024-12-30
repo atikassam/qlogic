@@ -15,6 +15,13 @@ import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 
+export const createWorker = () => {
+  const worker = new Worker(new URL('../../worker.js', import.meta.url));
+
+  console.log('Worker created:', worker);
+  return worker;
+};
+
 export type QLogicBuilderProps = {
   ContainerProps?: CardProps & {};
   showCode?: boolean;
@@ -39,6 +46,15 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
     );
     setCode(code);
   }, []);
+
+
+  const runCode = useCallback(() => {
+    const worker = createWorker();
+    worker.postMessage({ script: code });
+    worker.onmessage = (e) => {
+      console.log('Worker message:', e.data);
+    };
+  }, [])
 
   useEffect(() => {
     if (isInitialized.current) return; // Skip if already initialized
@@ -75,7 +91,7 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
                 <Tab label="Code" value={'code'} />
               </Tabs>
               <Box flex={1}/>
-              <Button variant={'contained'} disableElevation>Run</Button>
+              <Button variant={'contained'} size={'small'} disableElevation onClick={runCode}>Run</Button>
             </Stack>
             <Divider />
           </Box>
@@ -103,9 +119,8 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
               language="javascript"
               style={a11yLight}
               customStyle={{
-                padding: 16,
+                padding: 8,
                 margin: 0,
-                borderRadius: 16,
               }}
             >
               {code}
