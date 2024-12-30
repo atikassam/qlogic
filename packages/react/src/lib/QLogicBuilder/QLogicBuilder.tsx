@@ -16,7 +16,7 @@ import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 
 export const createWorker = () => {
-  const worker = new Worker(new URL('../../worker.js', import.meta.url));
+  const worker = new Worker('../../execute-unsafe-code.worker.ts', { type: 'module' });
 
   console.log('Worker created:', worker);
   return worker;
@@ -54,6 +54,8 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
     worker.onmessage = (e) => {
       console.log('Worker message:', e.data);
     };
+
+    console.log('Running code:', worker);
   }, [])
 
   useEffect(() => {

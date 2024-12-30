@@ -3,6 +3,7 @@ const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
 const css = require('rollup-plugin-import-css')
 const webWorkerLoader = require('rollup-plugin-web-worker-loader');
+const OMT = require("@surma/rollup-plugin-off-main-thread");
 
 function removeSourceMappingURL() {
   return {
@@ -34,6 +35,7 @@ module.exports = withNx(
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
     plugins: [
+      OMT(),
       webWorkerLoader(),
       removeSourceMappingURL(),
       css(),
