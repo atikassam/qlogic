@@ -3,7 +3,7 @@
 
 
 .app-container {
-  --bg: white;
+  --bg: transparent;
   --font-family: 'Google Sans';
   --output-max-height: 100%;
   --output-max-width: 392px;

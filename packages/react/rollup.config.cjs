@@ -2,6 +2,7 @@ const { withNx } = require('@nx/rollup/with-nx');
 const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
 const css = require('rollup-plugin-import-css')
+const webWorkerLoader = require('rollup-plugin-web-worker-loader');
 
 function removeSourceMappingURL() {
   return {
@@ -33,12 +34,18 @@ module.exports = withNx(
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
     plugins: [
+      webWorkerLoader(),
       removeSourceMappingURL(),
       css(),
       svg({
         svgo: false,
         titleProp: true,
         ref: true,
+      }),
+      url({
+        include: ['**/*.worker.ts'], // Ensure worker files are included
+        limit: 0, // Force output as separate files (not inlined)
+        fileName: '[name].worker.js', // Name pattern for worker files
       }),
       url({
         limit: 10000, // 10kB

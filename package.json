@@ -19,6 +19,8 @@
     "react-syntax-highlighter": "^15.6.1",
     "rollup-plugin-import-css": "^3.5.8",
     "rollup-plugin-scss": "^4.0.1",
+    "rollup-plugin-web-worker-loader": "^1.6.1",
+    "ses": "^1.10.0",
     "short-unique-id": "^5.2.0"
   },
   "devDependencies": {
