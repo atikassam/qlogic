@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
+  BoxProps,
   Button,
   Card,
   CardProps,
@@ -14,22 +15,19 @@ import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
-
-export const createWorker = () => {
-  const worker = new Worker('../../execute-unsafe-code.worker.ts', { type: 'module' });
-
-  console.log('Worker created:', worker);
-  return worker;
-};
+import { useQLogicBuilder } from './QLogicBuilderProvider';
 
 export type QLogicBuilderProps = {
+  bgcolor?: BoxProps['bgcolor'];
   ContainerProps?: CardProps & {};
   showCode?: boolean;
   height?: number;
 };
 
 export function QLogicBuilder(props: QLogicBuilderProps) {
-  const { ContainerProps, showCode, height = 400 } = props;
+  const { ContainerProps, showCode, height = 400, bgcolor } = props;
+  const ctx = useQLogicBuilder();
+
   const blocklyDivRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
   const [workspace, setWorkspace] = useState<Blockly.Workspace | null>(null);
@@ -37,32 +35,27 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
   const [activeTab, setActiveTab] = useState<'logic' | 'code'>('logic');
 
   const regenerate = useCallback((_e: any) => {
-    if ((Blockly.getMainWorkspace() as any).isDragging()) {
+    if (!workspace || (Blockly.getMainWorkspace() as any).isDragging()) {
       return; // Don't update code mid-drag.
     }
 
     const code = javascriptGenerator.workspaceToCode(
       Blockly.getMainWorkspace()
     );
-    setCode(code);
-  }, []);
 
+    ctx.setState(Blockly.serialization.workspaces.save(workspace));
+    setCode(code);
+  }, [ctx, workspace]);
 
   const runCode = useCallback(() => {
-    const worker = createWorker();
-    worker.postMessage({ script: code });
-    worker.onmessage = (e) => {
-      console.log('Worker message:', e.data);
-    };
-
-    console.log('Running code:', worker);
-  }, [])
+    // createWorker();
+  }, []);
 
   useEffect(() => {
     if (isInitialized.current) return; // Skip if already initialized
 
     if (blocklyDivRef.current) {
-      setWorkspace(init());
+      setWorkspace(init(ctx.environment));
       isInitialized.current = true; // Mark as initialized
     }
   }, [blocklyDivRef.current]);
@@ -78,22 +71,30 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
   }, [workspace]);
 
   return (
-    <Card
-      variant={'outlined'}
-      sx={{ p: 2, boxSizing: 'border-box' }}
+    <Box
+      sx={{
+        '--bg': bgcolor || ((t: any) => t.palette.background.default) as any,
+      }}
       {...ContainerProps}
       className="app-container"
     >
       <Stack direction={'column'} width={'100%'} spacing={2}>
         {showCode && (
           <Box>
-            <Stack direction={"row"} alignItems={'center'}>
+            <Stack direction={'row'} alignItems={'center'}>
               <Tabs onChange={(_e, v) => setActiveTab(v)} value={activeTab}>
                 <Tab label="Logic" value={'logic'} />
                 <Tab label="Code" value={'code'} />
               </Tabs>
-              <Box flex={1}/>
-              <Button variant={'contained'} size={'small'} disableElevation onClick={runCode}>Run</Button>
+              <Box flex={1} />
+              <Button
+                variant={'contained'}
+                size={'small'}
+                disableElevation
+                onClick={runCode}
+              >
+                Run
+              </Button>
             </Stack>
             <Divider />
           </Box>
@@ -130,7 +131,7 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
           </Card>
         )}
       </Stack>
-    </Card>
+    </Box>
   );
 }
 
