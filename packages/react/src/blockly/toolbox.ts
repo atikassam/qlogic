@@ -12,6 +12,7 @@
 // eslint-disable-next-line no-unused-vars, prefer-const
 export let toolboxJson = {
   contents: [
+
     {
       // Logic Category
       kind: 'CATEGORY',

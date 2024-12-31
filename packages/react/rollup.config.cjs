@@ -2,7 +2,6 @@ const { withNx } = require('@nx/rollup/with-nx');
 const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
 const css = require('rollup-plugin-import-css')
-const webWorkerLoader = require('rollup-plugin-web-worker-loader');
 const OMT = require("@surma/rollup-plugin-off-main-thread");
 
 function removeSourceMappingURL() {
@@ -33,10 +32,8 @@ module.exports = withNx(
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
   {
-    // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
     plugins: [
-      OMT(),
-      webWorkerLoader(),
+      OMT({}),
       removeSourceMappingURL(),
       css(),
       svg({
@@ -44,11 +41,11 @@ module.exports = withNx(
         titleProp: true,
         ref: true,
       }),
-      url({
-        include: ['**/*.worker.ts'], // Ensure worker files are included
-        limit: 0, // Force output as separate files (not inlined)
-        fileName: '[name].worker.js', // Name pattern for worker files
-      }),
+      // url({
+      //   include: ['**/*.worker.ts'], // Ensure worker files are included
+      //   limit: 0, // Force output as separate files (not inlined)
+      //   fileName: '[name].worker.js', // Name pattern for worker files
+      // }),
       url({
         limit: 10000, // 10kB
       }),

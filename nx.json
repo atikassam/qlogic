@@ -68,12 +68,31 @@
         "testStorybookTargetName": "test-storybook",
         "staticStorybookTargetName": "static-storybook"
       }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
+      }
     }
   ],
   "generators": {
     "@nx/react": {
       "library": {
+        "style": "@emotion/styled",
+        "linter": "none",
         "unitTestRunner": "jest"
+      },
+      "application": {
+        "babel": true,
+        "style": "@emotion/styled",
+        "linter": "none",
+        "bundler": "webpack"
+      },
+      "component": {
+        "style": "@emotion/styled"
       }
     }
   }
