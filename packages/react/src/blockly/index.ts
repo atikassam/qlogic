@@ -3,12 +3,12 @@ import { toolboxJson } from './toolbox';
 import './index.css';
 import { theme } from './theme';
 import { defineFunctionBlocks } from './blocks/define-function-blocks';
-import { QLogicExecutionOptions } from '../lib/QLogicEnvironment';
+import { QLogicEnvironment } from '../lib/QLogicEnvironment';
 
 /**
  * Initialize the page once everything is loaded.
  */
-export function init(ctx?: QLogicExecutionOptions) {
+export function init(ctx?: QLogicEnvironment) {
   let loadOnce = null;
   try {
     loadOnce = window.sessionStorage.getItem('loadOnceBlocks');
