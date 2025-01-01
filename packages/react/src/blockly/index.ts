@@ -33,8 +33,8 @@ export function init(ctx?: QLogicEnvironment) {
     toolbox,
     renderer: 'thrasos',
     zoom: {
-      maxScale: 1.8,
-      minScale: 0.6,
+      maxScale: 1,
+      minScale: 0.8,
       scaleSpeed: 1.2,
       pinch: true,
     },
@@ -47,66 +47,6 @@ export function init(ctx?: QLogicEnvironment) {
   return workspace;
 }
 
-
-/**
- * Change the (human) language.  Reloads the page.
- */
-export function languageChange() {
-  // Store the blocks in sessionStorage for the duration of the reload.
-  const text = JSON.stringify(
-    Blockly.serialization.workspaces.save(Blockly.getMainWorkspace()),
-  );
-  try {
-    window.sessionStorage.setItem('loadOnceBlocks', text);
-  } catch (e) {
-    // Storage can be flakey.
-    console.log(e);
-  }
-
-  const newLang = (document.getElementById('languageDropdown') as HTMLSelectElement).value;
-  window.location.search = '?hl=' + encodeURIComponent(newLang);
-}
-
-
-/**
- * Generate JavaScript from the blocks, then execute it using JS-Interpreter.
- */
-export function execute() {
-  const initFunc = function (interpreter: any, globalObject: any) {
-    const alertWrapper = function alert(text: string) {
-      return window.alert(arguments.length ? text : '');
-    };
-    interpreter.setProperty(
-      globalObject,
-      'alert',
-      interpreter.createNativeFunction(alertWrapper),
-    );
-
-    const promptWrapper = function prompt(text: string, defaultValue: string) {
-      return window.prompt(
-        arguments.length > 0 ? text : '',
-        arguments.length > 1 ? defaultValue : '',
-      );
-    };
-    interpreter.setProperty(
-      globalObject,
-      'prompt',
-      interpreter.createNativeFunction(promptWrapper),
-    );
-  };
-
-  const code = (window as any).javascript.javascriptGenerator.workspaceToCode(
-    Blockly.getMainWorkspace(),
-  );
-  const myInterpreter = new (window as any).Interpreter(code, initFunc);
-  let stepsAllowed = 10000;
-  while (myInterpreter.step() && stepsAllowed) {
-    stepsAllowed--;
-  }
-  if (!stepsAllowed) {
-    throw EvalError('Infinite loop.');
-  }
-}
 
 /**
  * Initial blocks when loading page.

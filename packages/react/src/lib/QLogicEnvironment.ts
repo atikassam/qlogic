@@ -9,6 +9,7 @@ export type QLogicEnvironmentFunc = {
     name: string;
     type: string
   }[];
+  returnType?: string;
   func: (...args: any[]) => any;
 }
 
