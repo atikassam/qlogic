@@ -23,6 +23,7 @@ export function EditorExample() {
             type: 'number',
           }
         ],
+        returnType: 'number',
         func: (a: number, b: number) => a + b,
       },
       {
@@ -30,7 +31,7 @@ export function EditorExample() {
         args: [
           {
             name: 'msg',
-            type: 'string',
+            type: 'any',
           }
         ],
         func: (msg: string) => alert(msg),
@@ -62,7 +63,7 @@ export function EditorExample() {
             <Grid item md={12}>
               <Divider/>
             </Grid>
-            <Grid item md={8}>
+            <Grid item md={8} sm={12} xs={12}>
               <QLogicBuilder />
             </Grid>
             <Grid item md={3}>
