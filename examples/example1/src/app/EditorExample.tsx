@@ -6,7 +6,7 @@ import {
 } from '@qlogic/react';
 import '@qlogic/react/index.esm.css';
 import { useMemo } from 'react';
-import { Box, Button, Card, Divider, Grid, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Card, Divider, Grid, Stack, Typography } from '@mui/material';
 
 export function EditorExample() {
   const env = useMemo(() => QLogicEnvironment.create({
@@ -56,9 +56,14 @@ export function EditorExample() {
             <Grid item md={12} container direction={'row'}>
               <Typography variant={'h5'}>QLogic Builder</Typography>
               <Box flex={1} />
-              <Button variant={'contained'} onClick={() => env.execute(helper.state, ctx)} disableElevation>
-                Run
-              </Button>
+              <ButtonGroup size={'small'} variant={'contained'} disableElevation>
+                <Button onClick={() => console.log(helper.state)}>
+                  Log
+                </Button>
+                <Button onClick={() => env.execute(helper.state, ctx)}>
+                  Run
+                </Button>
+              </ButtonGroup>
             </Grid>
             <Grid item md={12}>
               <Divider/>
