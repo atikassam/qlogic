@@ -3,6 +3,11 @@ import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 import _ from 'lodash';
 
+export type QLogicExecutionCtx = {
+  data?: any;
+};
+
+
 export type QLogicEnvironmentFunc = {
   name: string;
   args?: {
@@ -10,11 +15,10 @@ export type QLogicEnvironmentFunc = {
     type: string
   }[];
   returnType?: string;
-  func: (...args: any[]) => any;
+  func: (option: QLogicExecutionCtx, ...args: any[]) => any;
 }
 
-export type QLogicExecutionOptions = {
-  data?: any;
+export type QLogicExecutionOptions = QLogicExecutionCtx & {
   functions?: QLogicEnvironmentFunc[];
 };
 
@@ -45,10 +49,12 @@ export class QLogicEnvironment {
     Blockly.serialization.workspaces.load(logic, workspace);
     const code = javascriptGenerator.workspaceToCode(workspace);
 
-    console.log('Executing:', code);
     const functions = {
       ...Object.fromEntries(
-        options?.functions?.map(({ name, func }) => [name, func]) || []
+        options?.functions?.map(({ name, func }) => [
+          name,
+          (...args: any[]) => func(_options, ...args)
+        ]) || []
       ),
     };
 

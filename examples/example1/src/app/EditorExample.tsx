@@ -6,7 +6,7 @@ import {
 } from '@qlogic/react';
 import '@qlogic/react/index.esm.css';
 import { useMemo } from 'react';
-import { Box, Button, ButtonGroup, Card, Divider, Grid, Stack, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Card, Divider, Grid, Typography } from '@mui/material';
 
 export function EditorExample() {
   const env = useMemo(() => QLogicEnvironment.create({
@@ -24,7 +24,7 @@ export function EditorExample() {
           }
         ],
         returnType: 'number',
-        func: (a: number, b: number) => a + b,
+        func: (option, a: number, b: number) => a + b,
       },
       {
         name: 'alert',
@@ -34,7 +34,7 @@ export function EditorExample() {
             type: 'any',
           }
         ],
-        func: (msg: string) => alert(msg),
+        func: (opt, msg: string) => alert(msg),
       },
     ],
   }), []);

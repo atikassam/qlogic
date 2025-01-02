@@ -7,9 +7,7 @@ export function defineFunctionBlock(func: QLogicEnvironmentFunc) {
   Blockly.common.defineBlocks({
     [func_name(func)]: DefineFunc.Block(func),
   });
-
-  console.log('Define function block:', func_name(func));
-  javascript.javascriptGenerator.forBlock[func_name(func)] = DefineFunc.Generator(func);
+  javascript.javascriptGenerator.forBlock[func_name(func)] = DefineFunc.Generator(func) as any;
 }
 
 export function defineFunctionBlocks(ctx: QLogicEnvironment, toolbox?: any) {
