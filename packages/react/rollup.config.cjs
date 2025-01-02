@@ -24,16 +24,17 @@ function removeSourceMappingURL() {
 module.exports = withNx(
   {
     main: './src/index.ts',
+    additionalEntryPoints: ['./src/execute-unsafe-code.worker.ts'],
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
     external: ['react', 'react-dom', 'react/jsx-runtime', '@mui/material', '@emotion/styled', '@emotion/react'],
-    format: ['esm'],
+    format: ['esm', 'cjs', 'amd'],
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
   {
     plugins: [
-      OMT({}),
+      // OMT({}),
       removeSourceMappingURL(),
       css(),
       svg({
@@ -43,7 +44,7 @@ module.exports = withNx(
       }),
       // url({
       //   include: ['**/*.worker.ts'], // Ensure worker files are included
-      //   limit: 0, // Force output as separate files (not inlined)
+      //   // limit: 0, // Force output as separate files (not inlined)
       //   fileName: '[name].worker.js', // Name pattern for worker files
       // }),
       url({
