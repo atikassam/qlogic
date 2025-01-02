@@ -20,7 +20,7 @@ export type QLogicExecutionOptions = {
 
 
 const createWorker = () => {
-  const worker = new Worker(new URL('./execute-unsafe-code.worker.esm.js', import.meta.url));
+  const worker = new Worker(new URL('./execute-unsafe-code.worker.cjs.js', import.meta.url));
   const link = Comlink.wrap<any>(worker);
 
   return { worker, link };
