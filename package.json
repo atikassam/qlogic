@@ -12,6 +12,7 @@
     "@mui/material": "^6.2.1",
     "@surma/rollup-plugin-off-main-thread": "^2.2.3",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "babel-plugin-transform-import-meta": "^2.2.1",
     "blockly": "^11.2.0",
     "comlink": "^4.4.2",
     "eventemitter3": "^5.0.1",

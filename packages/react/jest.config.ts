@@ -3,6 +3,7 @@ export default {
   preset: '../../jest.preset.js',
   testEnvironment: 'jest-environment-jsdom',
   transform: {
+    '\\.ts$': ['babel-jest', { configFile: './babel-jest.config.js' }],
     '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
     '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/react/babel'] }],
   },
