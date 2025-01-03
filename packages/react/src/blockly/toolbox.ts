@@ -44,6 +44,10 @@ export let toolboxJson = {
         },
         {
           kind: 'BLOCK',
+          type: 'IsTruthyValue',
+        },
+        {
+          kind: 'BLOCK',
           type: 'logic_ternary',
         },
       ],

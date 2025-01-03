@@ -38,7 +38,7 @@ jobs:
         shell: bash
 
       - name: Build packages
-        run: npx nx run-many --all --target=build --no-cloud --exclude @qlogic/example1
+        run: npx nx run-many --all --target=build --no-cloud --exclude example1
         shell: bash
 
       - name: Publish packages
