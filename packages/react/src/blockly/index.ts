@@ -2,8 +2,8 @@ import * as Blockly from 'blockly';
 import { toolboxJson } from './toolbox';
 import './index.css';
 import { theme } from './theme';
-import { defineFunctionBlocks } from './blocks/define-function-blocks';
 import { QLogicEnvironment } from '../lib/QLogicEnvironment';
+import { funcName } from './blocks/define-function-blocks';
 
 /**
  * Initialize the page once everything is loaded.
@@ -26,7 +26,22 @@ export function init(ctx?: QLogicEnvironment) {
   );
   const toolbox = JSON.parse(toolboxString);
 
-  if (ctx) defineFunctionBlocks(ctx, toolbox);
+  if (ctx?.options) {
+    QLogicEnvironment.PrepareBlockly(ctx.options);
+
+    toolbox.contents.push({
+      kind: 'CATEGORY',
+      name: 'Functions',
+      colour: 134,
+      cssConfig: {
+        row: 'blocklyTreeRow blocklyTreeRowLists',
+      },
+      contents: ctx.options.functions?.map((func) => ({
+        kind: 'BLOCK',
+        type: funcName(func),
+      })),
+    });
+  }
 
   // Inject Blockly.
   const workspace = Blockly.inject('blocklyDiv', {
