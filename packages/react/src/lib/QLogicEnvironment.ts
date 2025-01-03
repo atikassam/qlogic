@@ -2,6 +2,7 @@ import * as Comlink from 'comlink';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 import _ from 'lodash';
+import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
 
 export type QLogicExecutionCtx = {
   data?: any;
@@ -36,6 +37,10 @@ export class QLogicEnvironment {
     return new QLogicEnvironment(worker, link, options);
   }
 
+  static PrepareBlockly(options: QLogicExecutionOptions) {
+    options.functions?.forEach(defineFunctionBlock);
+  }
+
   private constructor(private worker: Worker, private link:  Comlink.Remote<any>, public readonly options?: QLogicExecutionOptions) {}
 
   async execute(logic: any, _options: QLogicExecutionOptions): Promise<any> {
@@ -45,6 +50,7 @@ export class QLogicEnvironment {
       return;
     }
 
+    QLogicEnvironment.PrepareBlockly(options);
     const workspace = new Blockly.Workspace();
     Blockly.serialization.workspaces.load(logic, workspace);
     const code = javascriptGenerator.workspaceToCode(workspace);
