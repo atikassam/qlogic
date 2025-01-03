@@ -5,7 +5,8 @@ export default {
   name: 'IsTruthyValue',
   Block: {
     init: function () {
-      this.appendValueInput('VALUE');
+      this.appendValueInput('NAME')
+        .appendField('Boolean');
       this.setOutput(true, null);
       this.setTooltip('');
       this.setHelpUrl('');
