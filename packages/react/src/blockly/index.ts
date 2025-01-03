@@ -3,7 +3,17 @@ import { toolboxJson } from './toolbox';
 import './index.css';
 import { theme } from './theme';
 import { QLogicEnvironment } from '../lib/QLogicEnvironment';
-import { funcName } from './blocks/define-function-blocks';
+import IsTruthyValue from './blocks/is-truthy-value';
+import * as javascript from 'blockly/javascript';
+import DefineFunc from './blocks/define-func';
+
+(function setupCommonBlocks() {
+  Blockly.common.defineBlocks({
+    [IsTruthyValue.name]: IsTruthyValue.Block,
+  });
+  javascript.javascriptGenerator.forBlock[IsTruthyValue.name] =
+    IsTruthyValue.Generator as any;
+})();
 
 /**
  * Initialize the page once everything is loaded.
@@ -38,7 +48,7 @@ export function init(ctx?: QLogicEnvironment) {
       },
       contents: ctx.options.functions?.map((func) => ({
         kind: 'BLOCK',
-        type: funcName(func),
+        type: DefineFunc.name(func),
       })),
     });
   }

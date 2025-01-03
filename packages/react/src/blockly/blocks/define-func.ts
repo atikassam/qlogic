@@ -3,6 +3,8 @@ import * as javascript from 'blockly/javascript';
 import { QLogicEnvironmentFunc } from '../../lib/QLogicEnvironment';
 
 export default {
+  name: (func: QLogicEnvironmentFunc) => `custom_function_${func.name}`,
+
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
    * @param func The QLogicEnvironmentFunc describing the function to create a block for.
