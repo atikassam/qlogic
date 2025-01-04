@@ -67,7 +67,7 @@ export class QLogicEnvironment {
     const names = Object.keys(functions);
 
     return this.link.evaluate(
-      `(async function main() { ${code} })()`,
+      `(async function main() { ${code} \n\treturn 'OK'; })()`,
       names,
       Comlink.proxy(functions),
       options?.data
