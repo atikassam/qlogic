@@ -24,13 +24,11 @@ export default {
     validate: function (newValue: any) {
       if (!newValue?.___dropdown_child___) return newValue;
 
-      console.log('New Value:', newValue);
       this.getSourceBlock().updateDropdown(newValue);
       return newValue;
     },
 
     updateDropdown: function (newValue: any) {
-      console.log('New Value:', newValue);
       this.appendDummyInput('Day')
         .appendField('day')
         .appendField(new Blockly.FieldDropdown(this.generateOptions), 'Day');
