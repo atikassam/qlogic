@@ -23,7 +23,6 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
       return; // Don't update code mid-drag.
     }
 
-    console.log(workspace.options)
     ctx.setState(Blockly.serialization.workspaces.save(workspace));
   }, [ctx, workspace]);
 
