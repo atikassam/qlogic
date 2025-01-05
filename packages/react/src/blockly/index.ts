@@ -18,7 +18,8 @@ import DefineFunc from './blocks/define-func';
 /**
  * Initialize the page once everything is loaded.
  */
-export function init(ctx?: QLogicEnvironment) {
+export function init(opts: { sounds?: boolean, env?: QLogicEnvironment }) {
+  const { sounds, env } = opts;
   let loadOnce = null;
   try {
     loadOnce = window.sessionStorage.getItem('loadOnceBlocks');
@@ -32,12 +33,12 @@ export function init(ctx?: QLogicEnvironment) {
   let toolboxString = JSON.stringify(toolboxJson);
   toolboxString = toolboxString.replace(
     /%\{BKY_VARIABLES_DEFAULT_NAME\}/g,
-    Blockly.Msg.VARIABLES_DEFAULT_NAME,
+    Blockly.Msg.VARIABLES_DEFAULT_NAME
   );
   const toolbox = JSON.parse(toolboxString);
 
-  if (ctx?.options) {
-    QLogicEnvironment.PrepareBlockly(ctx.options);
+  if (env?.options) {
+    QLogicEnvironment.PrepareBlockly(env.options);
 
     toolbox.contents.push({
       kind: 'CATEGORY',
@@ -46,7 +47,7 @@ export function init(ctx?: QLogicEnvironment) {
       cssConfig: {
         row: 'blocklyTreeRow blocklyTreeRowLists',
       },
-      contents: ctx.options.functions?.map((func) => ({
+      contents: env.options.functions?.map((func) => ({
         kind: 'BLOCK',
         type: DefineFunc.name(func),
       })),
@@ -57,6 +58,7 @@ export function init(ctx?: QLogicEnvironment) {
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox,
     renderer: 'thrasos',
+    sounds: sounds ?? false,
     zoom: {
       maxScale: 1,
       minScale: 0.8,

@@ -3,6 +3,7 @@ import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 import _ from 'lodash';
 import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
+import Worker from 'web-worker';
 
 export type QLogicExecutionCtx = {
   data?: any;
@@ -25,7 +26,7 @@ export type QLogicExecutionOptions = QLogicExecutionCtx & {
 
 
 const createWorker = () => {
-  const worker = new Worker(new URL('./execute-unsafe-code.worker.cjs.js', import.meta.url));
+  const worker = new Worker(new URL('./execute-unsafe-code.worker.esm.js', import.meta.url));
   const link = Comlink.wrap<any>(worker);
 
   return { worker, link };

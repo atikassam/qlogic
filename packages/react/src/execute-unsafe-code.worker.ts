@@ -3,7 +3,7 @@ import * as Comlink from 'comlink';
 // lockdown({ legacyRegeneratorRuntimeTaming: 'safe' });
 
 Comlink.expose({
-  evaluate: (code: string, names: any, functions: any, data: any) => {
+  evaluate: async (code: string, names: any, functions: any, data: any) => {
     try {
       const compartment = new Compartment({
         globals: {
@@ -18,7 +18,7 @@ Comlink.expose({
       });
 
       // Execute the provided code in the secure environment
-      const result = compartment.evaluate(code);
+      const result = await compartment.evaluate(code);
 
       return { success: true, result };
     } catch (error) {
