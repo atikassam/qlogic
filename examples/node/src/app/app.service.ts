@@ -1,5 +1,5 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { QLogicEnvironment } from '@qlogic/react/node';
+import { QLogicEnvironment } from '@qlogic/nodejs/node';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
