@@ -2,10 +2,6 @@ import { JSDOM } from 'jsdom';
 
 export const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
-declare global {
-  var isNode: boolean;
-}
-
 if (isNode) {
   // Create a JSDOM environment
   const { window } = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
