@@ -1,3 +1,5 @@
+import {isNode} from './node.env';
+
 import * as Comlink from 'comlink';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
@@ -26,7 +28,13 @@ export type QLogicExecutionOptions = QLogicExecutionCtx & {
 
 
 const createWorker = () => {
-  const worker = new Worker(new URL('./execute-unsafe-code.worker.esm.js', import.meta.url));
+  let  worker;
+  if (isNode) {
+    worker = new Worker(__dirname + '/execute-unsafe-code.worker.cjs.js');
+  } else {
+    worker = new Worker(new URL('./execute-unsafe-code.worker.esm.js', import.meta.url), { type: 'module' });
+  }
+  // const worker = new Worker('./execute-unsafe-code.worker.esm.js');
   const link = Comlink.wrap<any>(worker);
 
   return { worker, link };

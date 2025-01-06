@@ -11,6 +11,9 @@
     },
     {
       "path": "./examples/example1"
+    },
+    {
+      "path": "./examples/node"
     }
   ],
   "ts-node": {

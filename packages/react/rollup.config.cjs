@@ -39,6 +39,7 @@ module.exports = withNx(
       '@emotion/styled',
       '@emotion/react',
       'web-worker',
+      'jsdom'
     ],
     format: ['esm', 'cjs', 'amd'],
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
