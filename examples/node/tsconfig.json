@@ -4,9 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../../packages/react"
-    },
-    {
       "path": "./tsconfig.app.json"
     }
   ]
