@@ -1,6 +1,6 @@
 {
   "name": "@qlogic/source",
-  "version": "0.0.0",
+  "version": "2.8.0",
   "license": "MIT",
   "scripts": {
     "prepare": "husky"
