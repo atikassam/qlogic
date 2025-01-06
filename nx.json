@@ -20,6 +20,7 @@
   "nxCloudId": "6766827cc60c400ee00d960e",
   "release": {
     "version": {
+      "preVersionCommand": "npx nx run-many -t build",
       "conventionalCommits": true
     },
     "changelog": {
@@ -58,7 +59,8 @@
       "plugin": "@nx/jest/plugin",
       "options": {
         "targetName": "test"
-      }
+      },
+      "exclude": ["examples/node-e2e/**/*"]
     },
     {
       "plugin": "@nx/storybook/plugin",

@@ -5,13 +5,14 @@ import * as Blockly from 'blockly';
 import { useQLogicBuilder } from './QLogicBuilderProvider';
 
 export type QLogicBuilderProps = {
+  sounds?: boolean;
   bgcolor?: BoxProps['bgcolor'];
   ContainerProps?: CardProps & {};
   height?: number;
 };
 
 export function QLogicBuilder(props: QLogicBuilderProps) {
-  const { ContainerProps, height = 400, bgcolor } = props;
+  const { ContainerProps, height = 400, bgcolor, sounds } = props;
   const ctx = useQLogicBuilder();
 
   const blocklyDivRef = useRef<HTMLDivElement>(null);
@@ -30,7 +31,7 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
     if (isInitialized.current) return; // Skip if already initialized
 
     if (blocklyDivRef.current) {
-      setWorkspace(init({ ctx: ctx.environment }));
+      setWorkspace(init({ env: ctx.environment, sounds }));
       isInitialized.current = true; // Mark as initialized
     }
   }, [blocklyDivRef.current]);
