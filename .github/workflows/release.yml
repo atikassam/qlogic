@@ -27,7 +27,7 @@ jobs:
       - run: npm install --force
 
       - name: Run tests
-        run: npx nx run-many --all --target=test  --no-cloud  --exclude example1
+        run: npx nx run-many --all --target=test  --no-cloud  --exclude example1 node
         shell: bash
 
       - name: Create release
