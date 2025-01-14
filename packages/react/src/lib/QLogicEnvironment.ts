@@ -8,8 +8,8 @@ import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
 import Worker from 'web-worker';
 import { defineQFunctionBlock } from '../blockly/blocks/define-qfunction-blocks';
 
-export type QLogicExecutionCtx = {
-  data?: any;
+export type QLogicExecutionCtx<T = any> = {
+  data?: T;
 };
 
 export type OptionArgType = {
@@ -39,7 +39,7 @@ export type QLogicEnvironmentFunc = {
   func: (option: QLogicExecutionCtx, ...args: any[]) => any;
 }
 
-export type QLogicExecutionOptions = QLogicExecutionCtx & {
+export type QLogicExecutionOptions<T = any> = QLogicExecutionCtx<T> & {
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
   qfuns?: QLogicEnvironmentQFunc[];
   functions?: QLogicEnvironmentFunc[];
@@ -59,10 +59,10 @@ const createWorker = () => {
   return { worker, link };
 };
 
-export class QLogicEnvironment {
-  static create(options?: QLogicExecutionOptions) {
+export class QLogicEnvironment<T = any> {
+  static create<T>(options?: QLogicExecutionOptions<T>) {
     const { worker, link } =  createWorker();
-    return new QLogicEnvironment(worker, link, options);
+    return new QLogicEnvironment<T>(worker, link, options);
   }
 
   static PrepareBlockly(options: QLogicExecutionOptions) {
@@ -70,9 +70,9 @@ export class QLogicEnvironment {
     options.qfuns?.forEach(defineQFunctionBlock);
   }
 
-  private constructor(private worker: Worker, private link:  Comlink.Remote<any>, public readonly options?: QLogicExecutionOptions) {}
+  private constructor(private worker: Worker, private link:  Comlink.Remote<any>, public readonly options?: QLogicExecutionOptions<T>) {}
 
-  async execute(logic: any, _options: QLogicExecutionOptions): Promise<any> {
+  async execute(logic: any, _options: QLogicExecutionOptions<T>): Promise<any> {
     const options = _.merge({}, this.options, _options);
     if (!logic) {
       console.error('No logic provided');
