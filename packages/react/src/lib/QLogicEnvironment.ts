@@ -1,4 +1,4 @@
-import {isNode} from './node.env';
+import { isNode } from './node.env';
 
 import * as Comlink from 'comlink';
 import * as Blockly from 'blockly';
@@ -15,43 +15,47 @@ export type QLogicExecutionCtx<T = any> = {
 export type OptionArgType = {
   label?: string;
   name: string;
-  type: 'options',
-  options: { label: string, value: string }[]
-}
+  type: 'options';
+  options: { label: string; value: string }[];
+};
 
-export type ArgType = OptionArgType | {
-  label?: string;
-  name: string;
-  type: string
-}
+export type ArgType =
+  | OptionArgType
+  | {
+      label?: string;
+      name: string;
+      type: string;
+    };
 
-export type QLogicEnvironmentQFunc = {
+export type QLogicEnvironmentQFunc<T = any> = {
   name: string;
-  conditional?: boolean
+  conditional?: boolean;
   returns?: ArgType[];
-  func: (option: QLogicExecutionCtx, ...args: any[]) => any;
-}
+  func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
+};
 
-export type QLogicEnvironmentFunc = {
+export type QLogicEnvironmentFunc<T = any> = {
   name: string;
   args?: ArgType[];
   returnType?: string;
-  func: (option: QLogicExecutionCtx, ...args: any[]) => any;
-}
+  func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
+};
 
 export type QLogicExecutionOptions<T = any> = QLogicExecutionCtx<T> & {
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
-  qfuns?: QLogicEnvironmentQFunc[];
-  functions?: QLogicEnvironmentFunc[];
+  qfuns?: QLogicEnvironmentQFunc<T>[];
+  functions?: QLogicEnvironmentFunc<T>[];
 };
 
-
 const createWorker = () => {
-  let  worker;
+  let worker;
   if (isNode) {
     worker = new Worker(__dirname + '/execute-unsafe-code.worker.cjs.js');
   } else {
-    worker = new Worker(new URL('./execute-unsafe-code.worker.esm.js', import.meta.url), { type: 'module' });
+    worker = new Worker(
+      new URL('./execute-unsafe-code.worker.esm.js', import.meta.url),
+      { type: 'module' }
+    );
   }
   // const worker = new Worker('./execute-unsafe-code.worker.esm.js');
   const link = Comlink.wrap<any>(worker);
@@ -61,7 +65,7 @@ const createWorker = () => {
 
 export class QLogicEnvironment<T = any> {
   static create<T>(options?: QLogicExecutionOptions<T>) {
-    const { worker, link } =  createWorker();
+    const { worker, link } = createWorker();
     return new QLogicEnvironment<T>(worker, link, options);
   }
 
@@ -70,7 +74,11 @@ export class QLogicEnvironment<T = any> {
     options.qfuns?.forEach(defineQFunctionBlock);
   }
 
-  private constructor(private worker: Worker, private link:  Comlink.Remote<any>, public readonly options?: QLogicExecutionOptions<T>) {}
+  private constructor(
+    private worker: Worker,
+    private link: Comlink.Remote<any>,
+    public readonly options?: QLogicExecutionOptions<T>
+  ) {}
 
   async execute(logic: any, _options: QLogicExecutionOptions<T>): Promise<any> {
     const options = _.merge({}, this.options, _options);
@@ -86,13 +94,17 @@ export class QLogicEnvironment<T = any> {
 
     const functions = {
       ...Object.fromEntries(
-        (options?.functions?.map(({ name, func }) => [
-          name,
-          (...args: any[]) => func(_options, ...args)
-        ]) || []).concat(options?.qfuns?.map(({ name, func }) => [
-          name,
-          (...args: any[]) => func(_options, ...args)
-        ]) || [])
+        (
+          options?.functions?.map(({ name, func }) => [
+            name,
+            (...args: any[]) => func(_options, ...args),
+          ]) || []
+        ).concat(
+          options?.qfuns?.map(({ name, func }) => [
+            name,
+            (...args: any[]) => func(_options, ...args),
+          ]) || []
+        )
       ),
     };
 
@@ -107,6 +119,6 @@ export class QLogicEnvironment<T = any> {
   }
 
   terminate() {
-    this.worker.terminate()
+    this.worker.terminate();
   }
 }
