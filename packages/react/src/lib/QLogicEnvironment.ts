@@ -41,7 +41,7 @@ export type QLogicEnvironmentFunc<T = any> = {
   func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
 };
 
-export type QLogicExecutionOptions<T = any> = QLogicExecutionCtx<T> & {
+export type QLogicExecutionOptions<T = any> = {
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
   qfuns?: QLogicEnvironmentQFunc<T>[];
   functions?: QLogicEnvironmentFunc<T>[];
@@ -80,14 +80,13 @@ export class QLogicEnvironment<T = any> {
     public readonly options?: QLogicExecutionOptions<T>
   ) {}
 
-  async execute(logic: any, _options: QLogicExecutionOptions<T>): Promise<any> {
-    const options = _.merge({}, this.options, _options);
+  async execute(logic: any, _options: QLogicExecutionCtx<T>): Promise<any> {
     if (!logic) {
       console.error('No logic provided');
       return;
     }
 
-    QLogicEnvironment.PrepareBlockly(options);
+    if (this.options) QLogicEnvironment.PrepareBlockly(this.options);
     const workspace = new Blockly.Workspace();
     Blockly.serialization.workspaces.load(logic, workspace);
     const code = javascriptGenerator.workspaceToCode(workspace);
@@ -95,12 +94,12 @@ export class QLogicEnvironment<T = any> {
     const functions = {
       ...Object.fromEntries(
         (
-          options?.functions?.map(({ name, func }) => [
+          this.options?.functions?.map(({ name, func }) => [
             name,
             (...args: any[]) => func(_options, ...args),
           ]) || []
         ).concat(
-          options?.qfuns?.map(({ name, func }) => [
+          this.options?.qfuns?.map(({ name, func }) => [
             name,
             (...args: any[]) => func(_options, ...args),
           ]) || []
@@ -114,7 +113,7 @@ export class QLogicEnvironment<T = any> {
       `(async function main() { ${code} \n\treturn 'OK'; })()`,
       names,
       Comlink.proxy(functions),
-      options?.data
+      _options.data
     );
   }
 
