@@ -29,6 +29,7 @@ export type QLogicEnvironmentQFunc = {
   name: string;
   conditional?: boolean
   returns?: ArgType[];
+  func: (option: QLogicExecutionCtx, ...args: any[]) => any;
 }
 
 export type QLogicEnvironmentFunc = {
@@ -85,10 +86,13 @@ export class QLogicEnvironment {
 
     const functions = {
       ...Object.fromEntries(
-        options?.functions?.map(({ name, func }) => [
+        (options?.functions?.map(({ name, func }) => [
           name,
           (...args: any[]) => func(_options, ...args)
-        ]) || []
+        ]) || []).concat(options?.qfuns?.map(({ name, func }) => [
+          name,
+          (...args: any[]) => func(_options, ...args)
+        ]) || [])
       ),
     };
 

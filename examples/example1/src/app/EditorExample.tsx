@@ -13,10 +13,11 @@ export function EditorExample() {
     allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
     qfuns: [
       {
+        conditional: true,
         name: 'CreateCharge',
         returns: [
           { name: 'Charge', type: 'number', label: 'Charge' },
-          { name: 'Label', type: 'number', label: 'Label' },
+          { name: 'Label', type: 'any', label: 'Label' },
           {
             name: 'Type',
             type: 'options',
@@ -28,7 +29,8 @@ export function EditorExample() {
               { label: 'Other', value: 'other' },
             ]
           },
-        ]
+        ],
+        func: (ctx, returns) => console.log(returns),
       }
     ],
     functions: [

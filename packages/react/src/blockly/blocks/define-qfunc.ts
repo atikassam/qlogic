@@ -15,6 +15,14 @@ export default {
       init: function () {
         // Set the block's label with the function name
         this.appendDummyInput(func.name).appendField(func.name);
+
+        if (func.conditional) {
+          this.appendValueInput('conditional')
+            .setAlign(Blockly.inputs.Align.RIGHT)
+            .appendField('When')
+        }
+
+
         this.appendStatementInput('logic')
           .setAlign(Blockly.inputs.Align.RIGHT);
 
@@ -49,7 +57,7 @@ export default {
         });
 
         // Configure block connections
-        this.setInputsInline(true);
+        this.setInputsInline(func.returns && func.returns?.length < 4);
 
         // Set the block's color
         this.setColour(172);
@@ -81,9 +89,16 @@ export default {
 
       const statement_logic = generator.statementToCode(block, 'logic');
       // Return the function call as a code string
-      return `await ${func.name}(await (async () => {\n` +
+      let code = `await ${func.name}(await (async () => {\n` +
         `${statement_logic}` +
         `  return {\n${func.returns?.map((arg) => `    ${arg.name}: ${args.shift()}`).join(',\n')}\n  };\n` +
       `})());\n`;
+
+      if (func.conditional) {
+        const conditional = generator.valueToCode(block, 'conditional', javascript.Order.ATOMIC);
+        code = `if (${conditional}) {\n${code}}\n`;
+      }
+
+      return code;
     },
 };
