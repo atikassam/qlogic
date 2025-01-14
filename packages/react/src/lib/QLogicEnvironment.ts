@@ -9,7 +9,7 @@ import Worker from 'web-worker';
 import { defineQFunctionBlock } from '../blockly/blocks/define-qfunction-blocks';
 
 export type QLogicExecutionCtx<T = any> = {
-  data?: T;
+  data: T;
 };
 
 export type OptionArgType = {
