@@ -19,17 +19,8 @@ import DefineQfunc from './blocks/define-qfunc';
 /**
  * Initialize the page once everything is loaded.
  */
-export function init(opts: { sounds?: boolean; env?: QLogicEnvironment }) {
-  const { sounds, env } = opts;
-  let loadOnce = null;
-  try {
-    loadOnce = window.sessionStorage.getItem('loadOnceBlocks');
-    window.sessionStorage.removeItem('loadOnceBlocks');
-    if (loadOnce) loadOnce = JSON.parse(loadOnce);
-  } catch (e) {
-    // Storage can be flakey.
-    console.log(e);
-  }
+export function init(opts: { sounds?: boolean; env?: QLogicEnvironment, initialState?: any }) {
+  const { sounds, env, initialState } = opts;
 
   let toolboxString = JSON.stringify(toolboxJson);
   toolboxString = toolboxString.replace(
@@ -76,7 +67,7 @@ export function init(opts: { sounds?: boolean; env?: QLogicEnvironment }) {
     trashcan: false,
     theme: theme,
   });
-  Blockly.serialization.workspaces.load(loadOnce || startBlocks, workspace);
+  Blockly.serialization.workspaces.load(initialState ?? startBlocks, workspace);
   workspace.zoomToFit();
 
 
@@ -218,9 +209,5 @@ const startBlocks = {
     ],
   },
   variables: [
-    {
-      name: 'Count',
-      id: 'Count',
-    },
   ],
 };
