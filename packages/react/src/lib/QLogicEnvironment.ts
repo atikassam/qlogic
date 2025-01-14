@@ -6,23 +6,41 @@ import { javascriptGenerator } from 'blockly/javascript';
 import _ from 'lodash';
 import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
 import Worker from 'web-worker';
+import { defineQFunctionBlock } from '../blockly/blocks/define-qfunction-blocks';
 
 export type QLogicExecutionCtx = {
   data?: any;
 };
 
+export type OptionArgType = {
+  label?: string;
+  name: string;
+  type: 'options',
+  options: { label: string, value: string }[]
+}
+
+export type ArgType = OptionArgType | {
+  label?: string;
+  name: string;
+  type: string
+}
+
+export type QLogicEnvironmentQFunc = {
+  name: string;
+  conditional?: boolean
+  returns?: ArgType[];
+}
 
 export type QLogicEnvironmentFunc = {
   name: string;
-  args?: {
-    name: string;
-    type: string
-  }[];
+  args?: ArgType[];
   returnType?: string;
   func: (option: QLogicExecutionCtx, ...args: any[]) => any;
 }
 
 export type QLogicExecutionOptions = QLogicExecutionCtx & {
+  allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
+  qfuns?: QLogicEnvironmentQFunc[];
   functions?: QLogicEnvironmentFunc[];
 };
 
@@ -48,6 +66,7 @@ export class QLogicEnvironment {
 
   static PrepareBlockly(options: QLogicExecutionOptions) {
     options.functions?.forEach(defineFunctionBlock);
+    options.qfuns?.forEach(defineQFunctionBlock);
   }
 
   private constructor(private worker: Worker, private link:  Comlink.Remote<any>, public readonly options?: QLogicExecutionOptions) {}
