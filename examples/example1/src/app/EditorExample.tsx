@@ -10,6 +10,27 @@ import { Box, Button, ButtonGroup, Card, Divider, Grid, Typography } from '@mui/
 
 export function EditorExample() {
   const env = useMemo(() => QLogicEnvironment.create({
+    allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
+    qfuns: [
+      {
+        name: 'CreateCharge',
+        returns: [
+          { name: 'Charge', type: 'number', label: 'Charge' },
+          { name: 'Label', type: 'number', label: 'Label' },
+          {
+            name: 'Type',
+            type: 'options',
+            label: 'Type',
+            options: [
+              { label: 'Premium', value: 'premium' },
+              { label: 'Tax', value: 'tax' },
+              { label: 'Fee', value: 'fee' },
+              { label: 'Other', value: 'other' },
+            ]
+          },
+        ]
+      }
+    ],
     functions: [
       {
         name: 'add',
@@ -21,7 +42,18 @@ export function EditorExample() {
           {
             name: 'b',
             type: 'number',
-          }
+          },
+          {
+            name: 'Type',
+            type: 'options',
+            label: 'Type',
+            options: [
+              { label: 'Premium', value: 'premium' },
+              { label: 'Tax', value: 'tax' },
+              { label: 'Fee', value: 'fee' },
+              { label: 'Other', value: 'other' },
+            ]
+          },
         ],
         returnType: 'number',
         func: (option, a: number, b: number) => a + b,

@@ -6,6 +6,7 @@ import { QLogicEnvironment } from '../lib/QLogicEnvironment';
 import IsTruthyValue from './blocks/is-truthy-value';
 import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
+import DefineQfunc from './blocks/define-qfunc';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -18,7 +19,7 @@ import DefineFunc from './blocks/define-func';
 /**
  * Initialize the page once everything is loaded.
  */
-export function init(opts: { sounds?: boolean, env?: QLogicEnvironment }) {
+export function init(opts: { sounds?: boolean; env?: QLogicEnvironment }) {
   const { sounds, env } = opts;
   let loadOnce = null;
   try {
@@ -47,10 +48,17 @@ export function init(opts: { sounds?: boolean, env?: QLogicEnvironment }) {
       cssConfig: {
         row: 'blocklyTreeRow blocklyTreeRowLists',
       },
-      contents: env.options.functions?.map((func) => ({
-        kind: 'BLOCK',
-        type: DefineFunc.name(func),
-      })),
+      contents: env.options.functions
+        ?.map((func) => ({
+          kind: 'BLOCK',
+          type: DefineFunc.name(func),
+        }))
+        .concat(
+          env.options.qfuns?.map((func) => ({
+            kind: 'BLOCK',
+            type: DefineQfunc.name(func),
+          })) || []
+        ),
     });
   }
 
@@ -71,9 +79,43 @@ export function init(opts: { sounds?: boolean, env?: QLogicEnvironment }) {
   Blockly.serialization.workspaces.load(loadOnce || startBlocks, workspace);
   workspace.zoomToFit();
 
+
+  const allowedRootBlocks = opts.env?.options?.allowedRootBlocks?.map((b) => {
+    if ('qfunc' in b) return DefineQfunc.name({ name: b.qfunc });
+    return DefineFunc.name({ name: b.function });
+  });
+
+  // Disable adding new blocks outside and selectively disable connected blocks
+  workspace.addChangeListener(function (event) {
+    if (
+      !allowedRootBlocks ||
+      !allowedRootBlocks.length ||
+      !('blockId' in event) ||
+      !event.blockId
+    )
+      return;
+
+    const block = workspace.getBlockById(event.blockId as string);
+    if (!block || !block.type) return;
+
+    const disabled = (!allowedRootBlocks.includes(block.type) && !block.getParent())
+      || !!block.getPreviousBlock()?.hasDisabledReason('Block must be attached to an allowed block');
+    console.log('block', disabled);
+    disableBlocks(block, disabled);
+  });
+
   return workspace;
 }
 
+function disableBlocks(block: Blockly.Block, disabled: boolean) {
+  block.setDisabledReason(
+    disabled,
+    'Block must be attached to an allowed block'
+  );
+
+  const nextBlock = block.getNextBlock();
+  if (nextBlock) disableBlocks(nextBlock, disabled);
+}
 
 /**
  * Initial blocks when loading page.
@@ -87,38 +129,38 @@ const startBlocks = {
         x: 10,
         y: 10,
         fields: {
-          VAR: {id: 'Count'},
+          VAR: { id: 'Count' },
         },
         inputs: {
           VALUE: {
             block: {
               type: 'math_number',
-              fields: {NUM: 1},
+              fields: { NUM: 1 },
             },
           },
         },
         next: {
           block: {
             type: 'controls_whileUntil',
-            fields: {MODE: 'WHILE'},
+            fields: { MODE: 'WHILE' },
             inputs: {
               BOOL: {
                 block: {
                   type: 'logic_compare',
-                  fields: {OP: 'LTE'},
+                  fields: { OP: 'LTE' },
                   inputs: {
                     A: {
                       block: {
                         type: 'variables_get',
                         fields: {
-                          VAR: {id: 'Count'},
+                          VAR: { id: 'Count' },
                         },
                       },
                     },
                     B: {
                       block: {
                         type: 'math_number',
-                        fields: {NUM: 3},
+                        fields: { NUM: 3 },
                       },
                     },
                   },
@@ -131,7 +173,7 @@ const startBlocks = {
                     TEXT: {
                       block: {
                         type: 'text',
-                        fields: {TEXT: 'Hello World!'},
+                        fields: { TEXT: 'Hello World!' },
                       },
                     },
                   },
@@ -139,26 +181,26 @@ const startBlocks = {
                     block: {
                       type: 'variables_set',
                       fields: {
-                        VAR: {id: 'Count'},
+                        VAR: { id: 'Count' },
                       },
                       inputs: {
                         VALUE: {
                           block: {
                             type: 'math_arithmetic',
-                            fields: {OP: 'ADD'},
+                            fields: { OP: 'ADD' },
                             inputs: {
                               A: {
                                 block: {
                                   type: 'variables_get',
                                   fields: {
-                                    VAR: {id: 'Count'},
+                                    VAR: { id: 'Count' },
                                   },
                                 },
                               },
                               B: {
                                 block: {
                                   type: 'math_number',
-                                  fields: {NUM: 1},
+                                  fields: { NUM: 1 },
                                 },
                               },
                             },

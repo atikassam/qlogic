@@ -9,4 +9,6 @@ const { window } = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
 (global as any).XMLHttpRequest = window.XMLHttpRequest;
 (global as any).DOMParser = window.DOMParser;
 
-console.log('JSDOM environment created');
+console.warn('JSDOM initialized, global.window and global.document are now available');
+console.warn('It is only for internal use, will be moved to worker in the future');
+
