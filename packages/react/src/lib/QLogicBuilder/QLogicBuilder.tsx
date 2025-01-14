@@ -31,7 +31,7 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
     if (isInitialized.current) return; // Skip if already initialized
 
     if (blocklyDivRef.current) {
-      setWorkspace(init({ env: ctx.environment, sounds }));
+      setWorkspace(init({ env: ctx.environment, sounds, initialState: ctx.initialState }));
       isInitialized.current = true; // Mark as initialized
     }
   }, [blocklyDivRef.current]);
