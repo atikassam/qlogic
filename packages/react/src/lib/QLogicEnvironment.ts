@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
 import Worker from 'web-worker';
 import { defineQFunctionBlock } from '../blockly/blocks/define-qfunction-blocks';
+import DefineLazyData from '../blockly/blocks/define-lazy-data';
 
 export type QLogicExecutionCtx<T = any> = {
   data: T;
@@ -16,7 +17,7 @@ export type OptionArgType = {
   label?: string;
   name: string;
   type: 'options';
-  options: { label: string; value: string }[];
+  options: { label: string; value: any }[] | (() => { label: string; value: any }[]);
 };
 
 export type ArgType =
@@ -26,6 +27,23 @@ export type ArgType =
       name: string;
       type: string;
     };
+
+export type QLogicEnvironmentLazyDataOption = {
+  /**
+   * this should be unique across all options including nested options
+   */
+  id: string,
+  key: string,
+  label: string,
+  isList?: boolean,
+  next?: QLogicEnvironmentLazyDataOption[]
+}
+
+export type QLogicEnvironmentLazyData<T = any> = {
+  name: string;
+  options: QLogicEnvironmentLazyDataOption[]
+  func: (option: QLogicExecutionCtx<T>, path: (string | number)[]) => any;
+};
 
 export type QLogicEnvironmentQFunc<T = any> = {
   name: string;
@@ -45,6 +63,7 @@ export type QLogicExecutionOptions<T = any> = {
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
   qfuns?: QLogicEnvironmentQFunc<T>[];
   functions?: QLogicEnvironmentFunc<T>[];
+  lazyData?: QLogicEnvironmentLazyData<T>[];
 };
 
 const createWorker = () => {
@@ -72,6 +91,7 @@ export class QLogicEnvironment<T = any> {
   static PrepareBlockly(options: QLogicExecutionOptions) {
     options.functions?.forEach(defineFunctionBlock);
     options.qfuns?.forEach(defineQFunctionBlock);
+    options.lazyData?.forEach(DefineLazyData.register);
   }
 
   private constructor(
@@ -92,19 +112,16 @@ export class QLogicEnvironment<T = any> {
     const code = javascriptGenerator.workspaceToCode(workspace);
 
     const functions = {
-      ...Object.fromEntries(
-        (
-          this.options?.functions?.map(({ name, func }) => [
-            name,
-            (...args: any[]) => func(_options, ...args),
-          ]) || []
-        ).concat(
-          this.options?.qfuns?.map(({ name, func }) => [
-            name,
-            (...args: any[]) => func(_options, ...args),
-          ]) || []
-        )
-      ),
+      ...Object.fromEntries([
+        ...(this.options?.functions?.map(({ name, func }) => [
+          name,
+          (...args: any[]) => func(_options, ...args),
+        ]) || []),
+        ...(this.options?.qfuns?.map(({ name, func }) => [
+          name,
+          (...args: any[]) => func(_options, ...args),
+        ]) || []),
+      ]),
     };
 
     const names = Object.keys(functions);

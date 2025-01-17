@@ -19,8 +19,59 @@ import {
 export function EditorExample() {
   const env = useMemo(
     () =>
-      QLogicEnvironment.create<{ title: string; }>({
+      QLogicEnvironment.create<{ title: string }>({
         allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
+        lazyData: [
+          {
+            name: 'Questions',
+            options: [
+              {
+                id: 'q2',
+                key: 'q2',
+                label: 'Q2',
+                isList: true,
+                next: [
+                  {
+                    id: 'q2:2',
+                    key: 'q2:2',
+                    label: 'Q2:2',
+                    next: [
+                      {
+                        id: 'q2:2:2',
+                        key: 'q2:2:2',
+                        label: 'Q2:2:2',
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                id: 'q1',
+                key: 'q1',
+                label: 'Q1',
+                isList: true,
+                next: [
+                  {
+                    id: 'q1:1',
+                    key: 'q1:1',
+                    label: 'Q1:1',
+                    next: [
+                      {
+                        id: 'q1:1:1',
+                        key: 'q1:1:1',
+                        label: 'Q1:1:1',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+            func: (ctx, path) => {
+              console.log('Lazy data', path);
+              return 'ok';
+            },
+          },
+        ],
         qfuns: [
           {
             conditional: true,
@@ -32,12 +83,23 @@ export function EditorExample() {
                 name: 'Type',
                 type: 'options',
                 label: 'Type',
-                options: [
-                  { label: 'Premium', value: 'premium' },
-                  { label: 'Tax', value: 'tax' },
-                  { label: 'Fee', value: 'fee' },
-                  { label: 'Other', value: 'other' },
-                ],
+                options: () => {
+                  console.log('Build options');
+                  return [
+                    { label: 'Premium', value: 'premium' },
+                    {
+                      label: 'Tax',
+                      value: 'tax',
+                      options: [
+                        { label: 'GST', value: 'gst' },
+                        { label: 'VAT', value: 'vat' },
+                        { label: 'Sales Tax', value: 'sales_tax' },
+                      ],
+                    },
+                    { label: 'Fee', value: 'fee' },
+                    { label: 'Other', value: 'other' },
+                  ];
+                },
               },
             ],
             func: (ctx, returns) => console.log(returns),
@@ -108,7 +170,11 @@ export function EditorExample() {
                 disableElevation
               >
                 <Button onClick={() => console.log(helper.state)}>Log</Button>
-                <Button onClick={() => env.execute(helper.state, { ...ctx, data: { title: 'ok' } })}>
+                <Button
+                  onClick={() =>
+                    env.execute(helper.state, { ...ctx, data: { title: 'ok' } })
+                  }
+                >
                   Run
                 </Button>
               </ButtonGroup>

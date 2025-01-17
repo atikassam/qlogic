@@ -17,7 +17,6 @@ export default {
     },
 
     getOptions: function () {
-      console.log(options);
       return options.map(({ label, value }: any) => [label, value]);
     },
 
