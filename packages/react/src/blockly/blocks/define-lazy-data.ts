@@ -14,7 +14,7 @@ type DefineLazyDataType = Blockly.Block & {
   renderOptions: () => void;
   renderOption: (opts: {
     name: string;
-    label: string;
+    label?: string;
     options: QLogicEnvironmentLazyDataOption[];
   }) => void;
 };
@@ -72,6 +72,8 @@ const DefineLazyData = {
         if (this.isInitialized) return;
         this.isInitialized = true;
 
+        this.appendDummyInput(func.name).appendField(func.name);
+
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setInputsInline(true);
@@ -110,7 +112,7 @@ const DefineLazyData = {
 
       renderOption(opts: {
         name: string;
-        label: string;
+        label?: string;
         options: QLogicEnvironmentLazyDataOption[];
       }) {
         const { name, label, options } = opts;
@@ -122,7 +124,10 @@ const DefineLazyData = {
 
             // Reset deeper levels if the selected option changes the path
             if (selectedLevel < this.customData.level) {
-              this.customData.path = this.customData.path.slice(0, selectedLevel);
+              this.customData.path = this.customData.path.slice(
+                0,
+                selectedLevel
+              );
               this.customData.level = selectedLevel;
 
               // Remove inputs corresponding to deeper levels
@@ -153,9 +158,9 @@ const DefineLazyData = {
           this.removeInput(name);
         }
 
-        this.appendDummyInput(name)
-          .appendField(label)
-          .appendField(dropdown, name);
+        const input = this.appendDummyInput(name);
+        if (label) input.appendField(label);
+        input.appendField(dropdown, name);
       },
 
       renderOptions() {
@@ -173,7 +178,7 @@ const DefineLazyData = {
         if (this.customData.path.length === 0) {
           this.renderOption({
             name: `OPT_${this.customData.level}`,
-            label: func.name,
+            // label: func.name,
             options: func.options,
           });
           return;
@@ -189,7 +194,7 @@ const DefineLazyData = {
           if (!this.getField(fieldName)) {
             this.renderOption({
               name: fieldName,
-              label: func.name,
+              // label: func.name,
               options: option.next,
             });
           }
@@ -198,11 +203,10 @@ const DefineLazyData = {
     } as DefineLazyDataType),
 
   Generator:
-    (func: QLogicEnvironmentLazyData) =>
-      (block: DefineLazyDataType) => {
-        const code = `await ${func.name}(${JSON.stringify(block.customData)});`;
-        return `${code}\n`;
-      },
+    (func: QLogicEnvironmentLazyData) => (block: DefineLazyDataType) => {
+      const code = `await ${func.name}(${JSON.stringify(block.customData)});`;
+      return `${code}\n`;
+    },
 };
 
 export default DefineLazyData;
