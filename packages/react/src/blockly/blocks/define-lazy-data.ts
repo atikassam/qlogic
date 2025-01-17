@@ -9,12 +9,16 @@ type DefineLazyDataType = Blockly.Block & {
   isInitialized: boolean;
   customData: {
     level: number;
-    path: string[];
+    path: {
+      id: string,
+      index?: number | string,
+    }[];
   };
   renderOptions: () => void;
   renderOption: (opts: {
     name: string;
     label?: string;
+    isList?: boolean;
     options: QLogicEnvironmentLazyDataOption[];
   }) => void;
 };
@@ -65,7 +69,7 @@ const DefineLazyData = {
     ({
       customData: {
         level: 0,
-        path: [] as string[],
+        path: [] as DefineLazyDataType['customData']['path'],
       },
 
       init() {
@@ -101,7 +105,7 @@ const DefineLazyData = {
           const fieldName = `OPT_${index}`;
           const field = this.getField(fieldName);
           if (field) {
-            field.setValue(value);
+            field.setValue(value.id);
           } else {
             console.warn(`Field ${fieldName} does not exist.`);
           }
@@ -113,10 +117,12 @@ const DefineLazyData = {
       renderOption(opts: {
         name: string;
         label?: string;
+        isList?: boolean;
         options: QLogicEnvironmentLazyDataOption[];
       }) {
-        const { name, label, options } = opts;
+        const { name, label, options, isList } = opts;
 
+        // Dropdown for options
         const dropdown = new Blockly.FieldDropdown(
           options.map((option) => [option.label, option.id]),
           (optionId) => {
@@ -124,36 +130,44 @@ const DefineLazyData = {
 
             // Reset deeper levels if the selected option changes the path
             if (selectedLevel < this.customData.level) {
-              this.customData.path = this.customData.path.slice(
-                0,
-                selectedLevel
-              );
+              this.customData.path = this.customData.path.slice(0, selectedLevel);
               this.customData.level = selectedLevel;
 
-              // Remove inputs corresponding to deeper levels
+              // Remove inputs corresponding to deeper levels (including index fields)
               for (let i = selectedLevel + 1; i <= this.inputList.length; i++) {
                 const fieldName = `OPT_${i}`;
+                const indexFieldName = `${fieldName}_INDEX`;
+
                 if (this.getInput(fieldName)) {
                   console.log('Removing input:', fieldName);
                   this.removeInput(fieldName);
+                }
+
+                if (this.getField(indexFieldName)) {
+                  console.log('Removing index field:', indexFieldName);
+                  this.removeInput(indexFieldName, true);
                 }
               }
             }
 
             // Update path and level
-            this.customData.path[this.customData.level] = optionId;
+            const currentOption = options.find((opt) => opt.id === optionId);
+            this.customData.path[this.customData.level] = {
+              id: optionId,
+              index: currentOption?.isList ? 0 : undefined, // Default index to 0 if isList is true
+            };
             this.customData.path = this.customData.path.slice(
               0,
               this.customData.level + 1
             );
             this.customData.level = this.customData.path.length;
 
-            console.log('Selected:', optionId, this.customData);
-            this.renderOptions(); // Rebuild the remaining options
+            this.renderOptions();
             return optionId;
           }
         );
 
+        // Create or update the dropdown field
         if (this.getInput(name)) {
           this.removeInput(name);
         }
@@ -161,15 +175,29 @@ const DefineLazyData = {
         const input = this.appendDummyInput(name);
         if (label) input.appendField(label);
         input.appendField(dropdown, name);
+        console.log('Adding input:', name, isList);
+
+        // Add index field if isList is true
+        if (isList) {
+          const indexFieldName = `${name}_INDEX`;
+          console.log('Adding index field:', indexFieldName);
+          const indexField = new Blockly.FieldNumber(0, 0, Infinity, 1, (index) => {
+            const pathItem = this.customData.path.find((p) => p.id === dropdown.getValue());
+            if (pathItem) pathItem.index = index;
+            return index;
+          });
+
+          input.appendField('Index:').appendField(indexField, indexFieldName);
+        }
       },
 
       renderOptions() {
         const getOption = (
-          paths: string[],
+          paths: DefineLazyDataType['customData']['path'],
           options: QLogicEnvironmentLazyDataOption[],
           index = 0
         ): QLogicEnvironmentLazyDataOption[] => {
-          const option = options.find((opt) => opt.id === paths[index]);
+          const option = options.find((opt) => opt.id === paths[index]?.id);
           if (!option) return [];
           if (!option.next) return [option];
           return [option, ...getOption(paths, option.next, index + 1)];
@@ -184,9 +212,7 @@ const DefineLazyData = {
           return;
         }
 
-        console.log('Rendering options:', this.customData.path);
         const options = getOption(this.customData.path, func.options);
-        console.log('Options:', options, this.customData.path);
         options.forEach((option, index) => {
           const fieldName = `OPT_${index + 1}`;
           if (!option.next) return; // Skip if no further options
@@ -196,6 +222,7 @@ const DefineLazyData = {
               name: fieldName,
               // label: func.name,
               options: option.next,
+              isList: option.isList,
             });
           }
         });

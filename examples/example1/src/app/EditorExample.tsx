@@ -35,6 +35,7 @@ export function EditorExample() {
                     id: 'q2:2',
                     key: 'q2:2',
                     label: 'Q2:2',
+                    isList: true,
                     next: [
                       {
                         id: 'q2:2:2',
