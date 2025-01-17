@@ -10,8 +10,8 @@ type DefineLazyDataType = Blockly.Block & {
   customData: {
     level: number;
     path: {
-      id: string,
-      index?: number | string,
+      id: string;
+      index?: number | string;
     }[];
   };
   renderOptions: () => void;
@@ -88,6 +88,15 @@ const DefineLazyData = {
 
       mutationToDom() {
         const container = Blockly.utils.xml.createElement('mutation');
+
+        this.customData.path.forEach((pathItem, index) => {
+          const indexInputName = `OPT_${index + 1}_INDEX`;
+          const input = this.getInput(indexInputName);
+          if (!input) return;
+          const connection = input.connection?.targetBlock();
+          if (connection) pathItem.index = indexInputName;
+        });
+
         container.setAttribute('data', JSON.stringify(this.customData));
         console.log('Saving mutation:', this.customData);
         return container;
@@ -130,7 +139,10 @@ const DefineLazyData = {
 
             // Reset deeper levels if the selected option changes the path
             if (selectedLevel < this.customData.level) {
-              this.customData.path = this.customData.path.slice(0, selectedLevel);
+              this.customData.path = this.customData.path.slice(
+                0,
+                selectedLevel
+              );
               this.customData.level = selectedLevel;
 
               // Remove inputs corresponding to deeper levels (including index fields)
@@ -138,15 +150,8 @@ const DefineLazyData = {
                 const fieldName = `OPT_${i}`;
                 const indexFieldName = `${fieldName}_INDEX`;
 
-                if (this.getInput(fieldName)) {
-                  console.log('Removing input:', fieldName);
-                  this.removeInput(fieldName);
-                }
-
-                if (this.getField(indexFieldName)) {
-                  console.log('Removing index field:', indexFieldName);
-                  this.removeInput(indexFieldName, true);
-                }
+                if (this.getInput(fieldName)) this.removeInput(fieldName);
+                if (this.getInput(indexFieldName)) this.removeInput(indexFieldName, true);
               }
             }
 
@@ -168,27 +173,20 @@ const DefineLazyData = {
         );
 
         // Create or update the dropdown field
-        if (this.getInput(name)) {
-          this.removeInput(name);
-        }
-
+        if (this.getInput(name)) this.removeInput(name);
         const input = this.appendDummyInput(name);
-        if (label) input.appendField(label);
-        input.appendField(dropdown, name);
-        console.log('Adding input:', name, isList);
 
         // Add index field if isList is true
         if (isList) {
           const indexFieldName = `${name}_INDEX`;
-          console.log('Adding index field:', indexFieldName);
-          const indexField = new Blockly.FieldNumber(0, 0, Infinity, 1, (index) => {
-            const pathItem = this.customData.path.find((p) => p.id === dropdown.getValue());
-            if (pathItem) pathItem.index = index;
-            return index;
-          });
-
-          input.appendField('Index:').appendField(indexField, indexFieldName);
+          if (this.getInput(indexFieldName)) this.removeInput(indexFieldName);
+          this.appendValueInput(indexFieldName)
+            .appendField('At')
+            .setAlign(Blockly.inputs.Align.RIGHT);
         }
+
+        if (label) input.appendField(label);
+        input.appendField(dropdown, name);
       },
 
       renderOptions() {
@@ -230,8 +228,20 @@ const DefineLazyData = {
     } as DefineLazyDataType),
 
   Generator:
-    (func: QLogicEnvironmentLazyData) => (block: DefineLazyDataType) => {
-      const code = `await ${func.name}(${JSON.stringify(block.customData)});`;
+    (func: QLogicEnvironmentLazyData) => (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
+      let path = '['
+      block.customData.path.forEach((pathItem, index) => {
+        if (index > 0) path += ',';
+        path += `'${pathItem.id}'`;
+
+        if (typeof pathItem.index === 'string') {
+          // path.push(generator.valueToCode(block, pathItem.index, javascript.Order.ATOMIC));
+          path += ', ' + generator.valueToCode(block, pathItem.index, javascript.Order.ATOMIC);
+        }
+      })
+
+      path += ']';
+      const code = `await ${func.name}(${path});`;
       return `${code}\n`;
     },
 };
