@@ -11,16 +11,59 @@ type DefineLazyDataType = Blockly.Block & {
     level: number;
     path: {
       id: string;
+      self?: boolean;
       index?: number | string;
     }[];
   };
   renderOptions: () => void;
+  rOptions: () => void;
+  rOption: (params: {
+    parent?: QLogicEnvironmentLazyDataOption;
+    option: QLogicEnvironmentLazyDataOption;
+  }) => void;
+
   renderOption: (opts: {
     name: string;
     label?: string;
+    path: DefineLazyDataType['customData']['path'][0];
+    level: number;
     isList?: boolean;
     options: QLogicEnvironmentLazyDataOption[];
   }) => void;
+};
+
+const CreateSystemOptions = (id: string) => {
+  return [
+    {
+      id: `${id}.self`,
+      key: '__self__',
+      label: 'Self',
+    },
+    {
+      id: `${id}.only`,
+      key: '__at__',
+      label: 'Only',
+    },
+  ];
+};
+
+const appendSystemOptions = (ld: QLogicEnvironmentLazyData) => {
+  const addSystemOptions = (option: QLogicEnvironmentLazyDataOption) => {
+    return {
+      ...option,
+      next: !option.next
+        ? undefined
+        : [...option.next, ...CreateSystemOptions(option.id)],
+    };
+  };
+
+  return {
+    ...ld,
+    options: [
+      ...CreateSystemOptions(ld.name),
+      ...ld.options.map(addSystemOptions),
+    ],
+  };
 };
 
 function getLevel(
@@ -65,8 +108,10 @@ const DefineLazyData = {
   name: (func: Pick<QLogicEnvironmentLazyData, 'name'>) =>
     `lazy_data_${func.name}`,
 
-  Block: (func: QLogicEnvironmentLazyData) =>
-    ({
+  Block: (_func: QLogicEnvironmentLazyData) => {
+    const func = appendSystemOptions(_func);
+
+    return {
       customData: {
         level: 0,
         path: [] as DefineLazyDataType['customData']['path'],
@@ -90,15 +135,23 @@ const DefineLazyData = {
         const container = Blockly.utils.xml.createElement('mutation');
 
         this.customData.path.forEach((pathItem, index) => {
+          const systemInputName = `OPT_${index + 1}_SYSTEM`;
+          console.log('Serializing path', systemInputName);
+          const systemInputField = this.getField(systemInputName) as Blockly.FieldDropdown
+          if (systemInputField) {
+            pathItem.self = systemInputField.getValue() === '.self';
+          }
+
           const indexInputName = `OPT_${index + 1}_INDEX`;
           const input = this.getInput(indexInputName);
-          if (!input) return;
-          const connection = input.connection?.targetBlock();
-          if (connection) pathItem.index = indexInputName;
+          if (input) {
+            const connection = input.connection?.targetBlock();
+            if (connection) pathItem.index = indexInputName;
+          }
+
         });
 
         container.setAttribute('data', JSON.stringify(this.customData));
-        console.log('Saving mutation:', this.customData);
         return container;
       },
 
@@ -119,25 +172,24 @@ const DefineLazyData = {
             console.warn(`Field ${fieldName} does not exist.`);
           }
         });
-
-        console.log('Restored mutation:', this.customData);
       },
 
       renderOption(opts: {
         name: string;
         label?: string;
         isList?: boolean;
+        path: DefineLazyDataType['customData']['path'][0];
         options: QLogicEnvironmentLazyDataOption[];
       }) {
-        const { name, label, options, isList } = opts;
+        const { name, label, options, path, isList } = opts;
 
+        console.log('Render path', path);
         // Dropdown for options
         const dropdown = new Blockly.FieldDropdown(
           options.map((option) => [option.label, option.id]),
           (optionId) => {
             const selectedLevel = getLevel(func.options, optionId);
 
-            // Reset deeper levels if the selected option changes the path
             if (selectedLevel < this.customData.level) {
               this.customData.path = this.customData.path.slice(
                 0,
@@ -149,9 +201,13 @@ const DefineLazyData = {
               for (let i = selectedLevel + 1; i <= this.inputList.length; i++) {
                 const fieldName = `OPT_${i}`;
                 const indexFieldName = `${fieldName}_INDEX`;
+                const systemFieldName = `${fieldName}_SYSTEM`;
 
                 if (this.getInput(fieldName)) this.removeInput(fieldName);
-                if (this.getInput(indexFieldName)) this.removeInput(indexFieldName, true);
+                if (this.getInput(indexFieldName))
+                  this.removeInput(indexFieldName, true);
+                if (this.getInput(systemFieldName))
+                  this.removeInput(systemFieldName, true);
               }
             }
 
@@ -172,18 +228,36 @@ const DefineLazyData = {
           }
         );
 
-        // Create or update the dropdown field
-        if (this.getInput(name)) this.removeInput(name);
-        const input = this.appendDummyInput(name);
-
         // Add index field if isList is true
         if (isList) {
           const indexFieldName = `${name}_INDEX`;
           if (this.getInput(indexFieldName)) this.removeInput(indexFieldName);
-          this.appendValueInput(indexFieldName)
-            .appendField('At')
-            .setAlign(Blockly.inputs.Align.RIGHT);
+
+          const systemFieldName = `${name}_SYSTEM`;
+          console.log('Adding index field', indexFieldName);
+          this.appendDummyInput(systemFieldName).appendField(
+            new Blockly.FieldDropdown(
+              CreateSystemOptions('').map((opt) => [opt.label, opt.id]),
+              (optionId) => {
+                if (optionId !== '.only') {
+                  if (this.getInput(indexFieldName))
+                    this.removeInput(indexFieldName);
+                  return optionId;
+                }
+
+                this.appendValueInput(indexFieldName)
+                  .appendField('At')
+                  .setAlign(Blockly.inputs.Align.RIGHT);
+                return optionId;
+              }
+            ),
+            systemFieldName
+          );
         }
+
+        // Create or update the dropdown field
+        if (this.getInput(name)) this.removeInput(name);
+        const input = this.appendDummyInput(name);
 
         if (label) input.appendField(label);
         input.appendField(dropdown, name);
@@ -194,53 +268,74 @@ const DefineLazyData = {
           paths: DefineLazyDataType['customData']['path'],
           options: QLogicEnvironmentLazyDataOption[],
           index = 0
-        ): QLogicEnvironmentLazyDataOption[] => {
+        ): {
+          path: DefineLazyDataType['customData']['path'][0];
+          option: QLogicEnvironmentLazyDataOption;
+        }[] => {
           const option = options.find((opt) => opt.id === paths[index]?.id);
           if (!option) return [];
-          if (!option.next) return [option];
-          return [option, ...getOption(paths, option.next, index + 1)];
+          const segment = { path: paths[index], option };
+          if (!option.next) return [segment];
+          return [segment, ...getOption(paths, option.next, index + 1)];
         };
 
         if (this.customData.path.length === 0) {
           this.renderOption({
+            path: this.customData.path[0],
             name: `OPT_${this.customData.level}`,
-            // label: func.name,
+            level: this.customData.level,
             options: func.options,
           });
           return;
         }
 
         const options = getOption(this.customData.path, func.options);
-        options.forEach((option, index) => {
-          const fieldName = `OPT_${index + 1}`;
-          if (!option.next) return; // Skip if no further options
+        options.forEach(({ option, path }, index) => {
+          const level = index + 1;
+          const fieldName = `OPT_${level}`;
+          console.log('Rendering option', option, path);
+          if (!option.next || path.self) {
+            console.log('Skipping option', option.next);
+
+            if (this.getField(fieldName)) this.removeInput(fieldName);
+            return;
+          } // Skip if no further options
 
           if (!this.getField(fieldName)) {
             this.renderOption({
+              path,
               name: fieldName,
-              // label: func.name,
+              level: level,
               options: option.next,
               isList: option.isList,
             });
           }
         });
       },
-    } as DefineLazyDataType),
+    } as DefineLazyDataType;
+  },
 
   Generator:
-    (func: QLogicEnvironmentLazyData) => (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-      let path = '['
+    (func: QLogicEnvironmentLazyData) =>
+    (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
+      let path = '[';
       block.customData.path.forEach((pathItem, index) => {
-        if (index > 0) path += ',';
+        if (index > 0) path += ', ';
         path += `'${pathItem.id}'`;
 
         if (typeof pathItem.index === 'string') {
-          // path.push(generator.valueToCode(block, pathItem.index, javascript.Order.ATOMIC));
-          path += ', ' + generator.valueToCode(block, pathItem.index, javascript.Order.ATOMIC);
+          path +=
+            ', ' +
+            generator.valueToCode(
+              block,
+              pathItem.index,
+              javascript.Order.ATOMIC
+            );
         }
-      })
+      });
 
       path += ']';
+      console.log('Path:', block.customData);
       const code = `await ${func.name}(${path});`;
       return `${code}\n`;
     },

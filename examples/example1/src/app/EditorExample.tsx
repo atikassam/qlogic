@@ -85,7 +85,6 @@ export function EditorExample() {
                 type: 'options',
                 label: 'Type',
                 options: () => {
-                  console.log('Build options');
                   return [
                     { label: 'Premium', value: 'premium' },
                     {
