@@ -221,22 +221,20 @@ const DefineLazyData = {
       console.log('Generator', block.extraState);
 
       let path = '[';
-      (
-        (block.extraState.path ? [] : []) as typeof block.extraState.path
-      ).forEach((pathItem, index) => {
-        if (index > 0) path += ', ';
+      for (const pathItem of block.extraState.path) {
+        if (pathItem.index > 0) path += ', ';
         path += `'${pathItem.id}'`;
-
-        if (typeof pathItem.index === 'string') {
+        if (pathItem.self) break;
+        if (pathItem.indexed) {
           path +=
             ', ' +
             generator.valueToCode(
               block,
-              pathItem.index,
+              identifier.index(pathItem.index),
               javascript.Order.ATOMIC
             );
         }
-      });
+      }
 
       path += ']';
       const code = `await ${func.name}(${path});`;
