@@ -4,6 +4,7 @@ import {
   QLogicEnvironmentLazyData,
   QLogicEnvironmentLazyDataOption,
 } from '../../lib/QLogicEnvironment';
+import { FieldDropdown } from 'blockly';
 
 type DefineLazyDataType = Blockly.Block & {
   isInitialized: boolean;
@@ -22,10 +23,13 @@ type DefineLazyDataType = Blockly.Block & {
     option: QLogicEnvironmentLazyDataOption;
   }) => void;
 
-  renderOption: (opts: {
-    index: number;
-    option: QLogicEnvironmentLazyDataOption;
-  }, extraState: DefineLazyDataType['extraState']) => void;
+  renderOption: (
+    opts: {
+      index: number;
+      option: QLogicEnvironmentLazyDataOption;
+    },
+    extraState: DefineLazyDataType['extraState']
+  ) => void;
 
   renderOptionDetails: (opts: {
     name: string;
@@ -37,6 +41,12 @@ type DefineLazyDataType = Blockly.Block & {
     options: QLogicEnvironmentLazyDataOption[];
     parent?: QLogicEnvironmentLazyDataOption;
   }) => void;
+};
+
+const identifier = {
+  id: (index: number) => `OPT_${index}`,
+  system: (index: number) => `OPT_${index}_system`,
+  index: (index: number) => `OPT_${index}_index`,
 };
 
 const CreateSystemOptions = (id: string) => {
@@ -65,9 +75,9 @@ const appendSystemOptions = (
       next: !option.next
         ? undefined
         : [
-          ...option.next.map(addSystemOptions),
-          ...CreateSystemOptions(option.id)
-        ],
+            ...option.next.map(addSystemOptions),
+            ...CreateSystemOptions(option.id),
+          ],
     };
   };
 
@@ -139,16 +149,42 @@ const DefineLazyData = {
         const { index = 0, option } = opt;
         if (!option.next) return;
 
-        const id = `OPT_${index}`;
-        if (this.getInput(id)) {
-          this.removeInput(id);
+        const id = identifier.id(index);
+
+        this.removeInput(id, true);
+        this.removeInput(identifier.index(index), true);
+        this.removeInput(identifier.system(index), true);
+
+        if (option.isList) {
+          this.appendDummyInput(identifier.system(index)).appendField(
+            new FieldDropdown(
+              CreateSystemOptions('').map((option) => [option.label, option.id]),
+              (value) => {
+                if (value.endsWith('.self')) extraState.path[index].self = true;
+                if (value.endsWith('.only')) {
+                  this.removeInput(identifier.index(index), true);
+                  this.appendValueInput(identifier.index(index))
+                    .appendField('Index')
+                    .setCheck('Number');
+
+                  if (this.getInput(identifier.id(index)))
+                    this.moveInputBefore(identifier.index(index), identifier.id(index))
+                } else {
+                  this.removeInput(identifier.index(index), true);
+                }
+                return value;
+              }
+            ),
+            identifier.system(index)
+          );
         }
+
         const input = this.appendDummyInput(id);
         extraState.path[index] = { index };
         const dropdown = new Blockly.FieldDropdown(
           [
             [`Select ${option.label}`, '__none__'],
-            ...option.next.map((option) => [option.label, option.id])
+            ...option.next.map((option) => [option.label, option.id]),
           ] as [string, string][],
           (value) => {
             console.log('value', value);
@@ -157,8 +193,10 @@ const DefineLazyData = {
             );
 
             for (const item of removables) {
-              const id = `OPT_${item.index}`;
-              if (this.getInput(id)) this.removeInput(id);
+              this.removeInput(identifier.id(item.index), true);
+              this.removeInput(identifier.system(item.index), true);
+              this.removeInput(identifier.index(item.index), true);
+
               item.removed = true;
             }
 
@@ -171,10 +209,14 @@ const DefineLazyData = {
             const sOption = option.next.find((opt) => opt.id === value);
             if (!sOption) return;
 
-            this.renderOption({ index: index + 1, option: sOption }, extraState);
+            this.renderOption(
+              { index: index + 1, option: sOption },
+              extraState
+            );
             return value;
           }
-        )
+        );
+
         input.appendField(dropdown, id);
       },
     } as DefineLazyDataType;
@@ -183,10 +225,12 @@ const DefineLazyData = {
   Generator:
     (func: QLogicEnvironmentLazyData) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-    console.log('Generator', block.extraState);
+      console.log('Generator', block.extraState);
 
       let path = '[';
-      ((block.extraState.path ? [] : []) as typeof block.extraState.path).forEach((pathItem, index) => {
+      (
+        (block.extraState.path ? [] : []) as typeof block.extraState.path
+      ).forEach((pathItem, index) => {
         if (index > 0) path += ', ';
         path += `'${pathItem.id}'`;
 
