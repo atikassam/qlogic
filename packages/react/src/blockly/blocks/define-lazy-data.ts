@@ -13,6 +13,7 @@ type DefineLazyDataType = Blockly.Block & {
       id?: string;
       self?: boolean;
       index: number;
+      indexed?: boolean;
       removed?: boolean;
     }[];
   };
@@ -49,17 +50,17 @@ const identifier = {
   index: (index: number) => `OPT_${index}_index`,
 };
 
-const CreateSystemOptions = (id: string) => {
+const CreateSystemOptions = (id: string, name = '') => {
   return [
     {
       id: `${id}.self`,
       key: '__self__',
-      label: 'Self',
+      label: `${name} Self`,
     },
     {
       id: `${id}.only`,
       key: '__at__',
-      label: 'Only',
+      label: `${name} Only`,
     },
   ];
 };
@@ -123,59 +124,52 @@ const DefineLazyData = {
       },
 
       saveExtraState() {
-        console.log('saveExtraState', this.extraState);
+        for (const path of this.extraState.path) {
+          const input = this.getInput(identifier.index(path.index));
+          path.indexed = !!input?.connection?.getSourceBlock().id;
+        }
         return this.extraState;
       },
 
       loadExtraState(extraState) {
         this.extraState = extraState;
-        console.log('loadExtraState', this.extraState);
-        // this.renderOptions();
-
-        // Restore field values
-        // this.customData.path.forEach((value, index) => {
-        //   const fieldName = `OPT_${index}`;
-        //   const field = this.getField(fieldName);
-        //   if (field) {
-        //     field.setValue(value.id);
-        //   } else {
-        //     console.warn(`Field ${fieldName} does not exist.`);
-        //   }
-        // });
       },
 
       renderOption(opt, extraState) {
-        console.log('RenderOption', opt.index, opt.option);
         const { index = 0, option } = opt;
+        const _index = index - 1;
+
         if (!option.next) return;
 
         const id = identifier.id(index);
 
         this.removeInput(id, true);
-        this.removeInput(identifier.index(index), true);
-        this.removeInput(identifier.system(index), true);
+        this.removeInput(identifier.system(_index), true);
+        this.removeInput(identifier.index(_index), true);
 
         if (option.isList) {
-          this.appendDummyInput(identifier.system(index)).appendField(
+
+          this.appendDummyInput(identifier.system(_index)).appendField(
             new FieldDropdown(
               CreateSystemOptions('').map((option) => [option.label, option.id]),
               (value) => {
-                if (value.endsWith('.self')) extraState.path[index].self = true;
+                extraState.path[_index].self = value.endsWith('.self');
+
                 if (value.endsWith('.only')) {
-                  this.removeInput(identifier.index(index), true);
-                  this.appendValueInput(identifier.index(index))
+                  this.removeInput(identifier.index(_index), true);
+                  this.appendValueInput(identifier.index(_index))
                     .appendField('Index')
                     .setCheck('Number');
 
-                  if (this.getInput(identifier.id(index)))
-                    this.moveInputBefore(identifier.index(index), identifier.id(index))
+                  if (this.getInput(identifier.id(_index)))
+                    this.moveInputBefore(identifier.index(_index), identifier.id(index))
                 } else {
-                  this.removeInput(identifier.index(index), true);
+                  this.removeInput(identifier.index(_index), true);
                 }
                 return value;
               }
             ),
-            identifier.system(index)
+            identifier.system(_index)
           );
         }
 
@@ -187,7 +181,6 @@ const DefineLazyData = {
             ...option.next.map((option) => [option.label, option.id]),
           ] as [string, string][],
           (value) => {
-            console.log('value', value);
             const removables = extraState.path.filter(
               (item) => item.index > index
             );
