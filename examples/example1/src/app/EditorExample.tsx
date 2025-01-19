@@ -23,8 +23,11 @@ export function EditorExample() {
         allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
         lazyData: [
           {
+            id: 'Questions',
+            key: 'Questions',
+            label: 'Questions',
             name: 'Questions',
-            options: [
+            next: [
               {
                 id: 'q2',
                 key: 'q2',
@@ -37,6 +40,11 @@ export function EditorExample() {
                     label: 'Q2:2',
                     isList: true,
                     next: [
+                      {
+                        id: 'q2:2:1',
+                        key: 'q2:2:1',
+                        label: 'Q2:2:1',
+                      },
                       {
                         id: 'q2:2:2',
                         key: 'q2:2:2',
