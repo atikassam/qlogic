@@ -7,6 +7,7 @@ import IsTruthyValue from './blocks/is-truthy-value';
 import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
 import DefineQfunc from './blocks/define-qfunc';
+import DefineLazyData from './blocks/define-lazy-data';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -19,7 +20,11 @@ import DefineQfunc from './blocks/define-qfunc';
 /**
  * Initialize the page once everything is loaded.
  */
-export function init(opts: { sounds?: boolean; env?: QLogicEnvironment, initialState?: any }) {
+export function init(opts: {
+  sounds?: boolean;
+  env?: QLogicEnvironment;
+  initialState?: any;
+}) {
   const { sounds, env, initialState } = opts;
 
   let toolboxString = JSON.stringify(toolboxJson);
@@ -39,17 +44,20 @@ export function init(opts: { sounds?: boolean; env?: QLogicEnvironment, initialS
       cssConfig: {
         row: 'blocklyTreeRow blocklyTreeRowLists',
       },
-      contents: env.options.functions
-        ?.map((func) => ({
+      contents: [
+        ...(env.options.lazyData?.map((func) => ({
+          kind: 'BLOCK',
+          type: DefineLazyData.name(func),
+        })) || []),
+        ...(env.options.functions?.map((func) => ({
           kind: 'BLOCK',
           type: DefineFunc.name(func),
-        }))
-        .concat(
-          env.options.qfuns?.map((func) => ({
-            kind: 'BLOCK',
-            type: DefineQfunc.name(func),
-          })) || []
-        ),
+        })) || []),
+        ...(env.options.qfuns?.map((func) => ({
+          kind: 'BLOCK',
+          type: DefineQfunc.name(func),
+        })) || []),
+      ],
     });
   }
 
@@ -70,7 +78,6 @@ export function init(opts: { sounds?: boolean; env?: QLogicEnvironment, initialS
   Blockly.serialization.workspaces.load(initialState ?? startBlocks, workspace);
   workspace.zoomToFit();
 
-
   const allowedRootBlocks = opts.env?.options?.allowedRootBlocks?.map((b) => {
     if ('qfunc' in b) return DefineQfunc.name({ name: b.qfunc });
     return DefineFunc.name({ name: b.function });
@@ -89,9 +96,12 @@ export function init(opts: { sounds?: boolean; env?: QLogicEnvironment, initialS
     const block = workspace.getBlockById(event.blockId as string);
     if (!block || !block.type) return;
 
-    const disabled = (!allowedRootBlocks.includes(block.type) && !block.getParent())
-      || !!block.getPreviousBlock()?.hasDisabledReason('Block must be attached to an allowed block');
-    console.log('block', disabled);
+    const disabled =
+      (!allowedRootBlocks.includes(block.type) && !block.getParent()) ||
+      !!block
+        .getPreviousBlock()
+        ?.hasDisabledReason('Block must be attached to an allowed block');
+
     disableBlocks(block, disabled);
   });
 
@@ -208,6 +218,5 @@ const startBlocks = {
       },
     ],
   },
-  variables: [
-  ],
+  variables: [],
 };

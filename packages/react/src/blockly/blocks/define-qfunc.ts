@@ -1,6 +1,7 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
 import { QLogicEnvironmentQFunc } from '../../lib/QLogicEnvironment';
+import { optionsToBlockDropDown } from './utill';
 
 export default {
   name: (func: Pick<QLogicEnvironmentQFunc, 'name'>) => `custom_qfunction_${func.name}`,
@@ -28,18 +29,12 @@ export default {
 
         // Add inputs for each function argument
         func.returns?.forEach((arg) => {
-          if (
-            arg.type === 'options' &&
-            'options' in arg &&
-            arg.options?.length
-          ) {
+          if (arg.type === 'options' && 'options' in arg) {
             // Use appendDummyInput for options with a dropdown
             this.appendDummyInput(arg.name)
               .appendField(arg.name)
               .appendField(
-                new Blockly.FieldDropdown(
-                  arg.options.map((option) => [option.label, option.value])
-                ),
+                optionsToBlockDropDown(this, arg.options),
                 arg.name
               );
 

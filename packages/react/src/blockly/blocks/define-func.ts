@@ -1,9 +1,11 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
 import { QLogicEnvironmentFunc } from '../../lib/QLogicEnvironment';
+import { optionsToBlockDropDown } from './utill';
 
 export default {
-  name: (func: Pick<QLogicEnvironmentFunc, 'name'>) => `custom_function_${func.name}`,
+  name: (func: Pick<QLogicEnvironmentFunc, 'name'>) =>
+    `custom_function_${func.name}`,
 
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
@@ -18,14 +20,11 @@ export default {
 
         // Add inputs for each function argument
         func.args?.forEach((arg) => {
-          if (arg.type === 'options' && 'options' in arg && arg.options?.length) {
-            // Use appendDummyInput for options with a dropdown
+          if (arg.type === 'options' && 'options' in arg) {
             this.appendDummyInput(arg.name)
               .appendField(arg.name)
               .appendField(
-                new Blockly.FieldDropdown(
-                  arg.options.map((option) => [option.label, option.value])
-                ),
+                optionsToBlockDropDown(this, arg.options),
                 arg.name
               );
 
@@ -67,25 +66,25 @@ export default {
    */
   Generator:
     (func: QLogicEnvironmentFunc) =>
-      (block: Blockly.Block, generator: javascript.JavascriptGenerator) => {
-        // Map function arguments to their corresponding Blockly values
-        const args =
-          func.args?.map((arg) => {
-            if (arg.type === 'options') {
-              // Get the selected value for dropdown options
-              return `'${block.getFieldValue(arg.name) || 'null'}'`;
-            } else {
-              // Get the input value for other argument types
-              return (
-                generator.valueToCode(block, arg.name, javascript.Order.ATOMIC) ||
-                'null'
-              );
-            }
-          }) || [];
+    (block: Blockly.Block, generator: javascript.JavascriptGenerator) => {
+      // Map function arguments to their corresponding Blockly values
+      const args =
+        func.args?.map((arg) => {
+          if (arg.type === 'options') {
+            // Get the selected value for dropdown options
+            return `'${block.getFieldValue(arg.name) || 'null'}'`;
+          } else {
+            // Get the input value for other argument types
+            return (
+              generator.valueToCode(block, arg.name, javascript.Order.ATOMIC) ||
+              'null'
+            );
+          }
+        }) || [];
 
-        // Return the function call as a code string
-        const code = `await ${func.name}(${args.join(', ')})`;
-        if (!func.returnType) return code + ';\n'; // Add semicolon for expressions
-        return [code, javascript.Order.ATOMIC]; // Add newline only for statements
-      },
+      // Return the function call as a code string
+      const code = `await ${func.name}(${args.join(', ')})`;
+      if (!func.returnType) return code + ';\n'; // Add semicolon for expressions
+      return [code, javascript.Order.ATOMIC]; // Add newline only for statements
+    },
 };
