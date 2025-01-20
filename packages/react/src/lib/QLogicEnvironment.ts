@@ -113,6 +113,10 @@ export class QLogicEnvironment<T = any> {
 
     const functions = {
       ...Object.fromEntries([
+        ...(this.options?.lazyData?.map(({ name, func }) => [
+          name,
+          (...args: any[]) => (func as any)(_options, ...args),
+        ]) || []),
         ...(this.options?.functions?.map(({ name, func }) => [
           name,
           (...args: any[]) => func(_options, ...args),

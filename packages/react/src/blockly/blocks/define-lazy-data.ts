@@ -129,8 +129,7 @@ const DefineLazyData = {
 
         this.appendDummyInput(func.name).appendField(func.name);
 
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
+        this.setOutput(true);
         this.setInputsInline(true);
         this.setColour(172);
 
@@ -161,7 +160,6 @@ const DefineLazyData = {
         }
       },
       onOptionSelected(index, parent, option, extraState) {
-        console.log('Option Selected at', index, option);
         if (!option.isList) {
           this.removeInput(identifier.index(index), true);
           this.removeInput(identifier.system(index), true);
@@ -270,27 +268,27 @@ const DefineLazyData = {
   Generator:
     (func: QLogicEnvironmentLazyData) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-      console.log('Generator', block.extraState);
 
       let path = '[';
       for (const pathItem of block.extraState.path) {
         if (pathItem.index > 0) path += ', ';
-        path += `'${pathItem.id}'`;
+        path += `{ id: '${pathItem.id}' }`;
         if (pathItem.all) break;
         if (pathItem.indexed) {
-          path +=
-            ', ' +
-            generator.valueToCode(
-              block,
-              identifier.index(pathItem.index),
-              javascript.Order.ATOMIC
-            );
+          const code = generator.valueToCode(
+            block,
+            identifier.index(pathItem.index),
+            javascript.Order.ATOMIC
+          );
+
+          path += `, { index: ${code} }`
+
         }
       }
 
       path += ']';
-      const code = `await ${func.name}(${path});`;
-      return `${code}\n`;
+      const code = `await ${func.name}(${path})`;
+      return [code, javascript.Order.ATOMIC];
     },
 };
 

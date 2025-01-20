@@ -101,7 +101,7 @@ export function init(opts: {
       !!block
         .getPreviousBlock()
         ?.hasDisabledReason('Block must be attached to an allowed block');
-    console.log('block', disabled);
+
     disableBlocks(block, disabled);
   });
 

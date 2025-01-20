@@ -148,7 +148,10 @@ export function EditorExample() {
                 type: 'any',
               },
             ],
-            func: (opt, msg: string) => alert(msg),
+            func: (opt, msg: string) => {
+              console.log('Alert', msg);
+              alert(msg)
+            },
           },
         ],
       }),
