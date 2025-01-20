@@ -228,7 +228,7 @@ const DefineLazyData = {
       renderOption(opt, extraState) {
         const { index = 0, option } = opt;
 
-        let onSelect =
+        const onSelect =
           opt.onSelect ??
           ((index, selected) =>
             this.onOptionSelected(index, option, selected, extraState));
