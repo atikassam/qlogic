@@ -24,10 +24,22 @@ type DefineLazyDataType = Blockly.Block & {
     option: QLogicEnvironmentLazyDataOption;
   }) => void;
 
+  onOptionSelected: (
+    index: number,
+    parent: QLogicEnvironmentLazyDataOption,
+    option: QLogicEnvironmentLazyDataOption,
+    extraState: DefineLazyDataType['extraState']
+  ) => void;
+
+  removeOption: (
+    index: number,
+    extraState: DefineLazyDataType['extraState']
+  ) => void;
   renderOption: (
     opts: {
       index: number;
       option: QLogicEnvironmentLazyDataOption;
+      onSelect?(index: number, option: QLogicEnvironmentLazyDataOption): void;
     },
     extraState: DefineLazyDataType['extraState']
   ) => void;
@@ -135,44 +147,70 @@ const DefineLazyData = {
         this.extraState = extraState;
       },
 
+      removeOption(index: number, extraState) {
+        const removables = extraState.path.filter((item) => item.index > index);
+
+        for (const item of removables) {
+          this.removeInput(identifier.id(item.index), true);
+          this.removeInput(identifier.system(item.index), true);
+          this.removeInput(identifier.index(item.index), true);
+
+          item.removed = true;
+        }
+      },
+      onOptionSelected(index, parent, option, extraState) {
+        console.log('Option Selected at', index, option);
+        if (!option.isList) {
+          this.removeInput(identifier.index(index), true);
+          this.removeInput(identifier.system(index), true);
+          return;
+        }
+
+        this.removeInput(identifier.system(index), true);
+        this.appendDummyInput(identifier.system(index)).appendField(
+          new FieldDropdown(
+            CreateSystemOptions('').map((option) => [option.label, option.id]),
+            (value) => {
+              extraState.path[index].self = value.endsWith('.self');
+
+              if (value.endsWith('.only')) {
+                this.removeInput(identifier.index(index), true);
+                this.appendValueInput(identifier.index(index))
+                  .appendField('Index')
+                  .setCheck('Number');
+
+                if (this.getInput(identifier.id(index + 1)))
+                  this.moveInputBefore(
+                    identifier.index(index),
+                    identifier.id(index + 1)
+                  );
+              } else {
+                this.removeInput(identifier.index(index), true);
+              }
+              return value;
+            }
+          ),
+          identifier.system(index)
+        );
+
+        if (this.getInput(identifier.id(index + 1)))
+          this.moveInputBefore(
+            identifier.system(index),
+            identifier.id(index + 1)
+          );
+      },
       renderOption(opt, extraState) {
         const { index = 0, option } = opt;
-        const _index = index - 1;
+
+        let onSelect =
+          opt.onSelect ??
+          ((index, selected) =>
+            this.onOptionSelected(index, option, selected, extraState));
 
         if (!option.next) return;
-
         const id = identifier.id(index);
 
         this.removeInput(id, true);
-        this.removeInput(identifier.system(_index), true);
-        this.removeInput(identifier.index(_index), true);
-
-        if (option.isList) {
-
-          this.appendDummyInput(identifier.system(_index)).appendField(
-            new FieldDropdown(
-              CreateSystemOptions('').map((option) => [option.label, option.id]),
-              (value) => {
-                extraState.path[_index].self = value.endsWith('.self');
-
-                if (value.endsWith('.only')) {
-                  this.removeInput(identifier.index(_index), true);
-                  this.appendValueInput(identifier.index(_index))
-                    .appendField('Index')
-                    .setCheck('Number');
-
-                  if (this.getInput(identifier.id(_index)))
-                    this.moveInputBefore(identifier.index(_index), identifier.id(index))
-                } else {
-                  this.removeInput(identifier.index(_index), true);
-                }
-                return value;
-              }
-            ),
-            identifier.system(_index)
-          );
-        }
-
         const input = this.appendDummyInput(id);
         extraState.path[index] = { index };
         const dropdown = new Blockly.FieldDropdown(
@@ -181,17 +219,7 @@ const DefineLazyData = {
             ...option.next.map((option) => [option.label, option.id]),
           ] as [string, string][],
           (value) => {
-            const removables = extraState.path.filter(
-              (item) => item.index > index
-            );
-
-            for (const item of removables) {
-              this.removeInput(identifier.id(item.index), true);
-              this.removeInput(identifier.system(item.index), true);
-              this.removeInput(identifier.index(item.index), true);
-
-              item.removed = true;
-            }
+            this.removeOption(index, extraState);
 
             if (extraState.path[index]) {
               extraState.path[index].id = value;
@@ -201,11 +229,20 @@ const DefineLazyData = {
 
             const sOption = option.next.find((opt) => opt.id === value);
             if (!sOption) return;
+            onSelect?.(index, sOption);
 
+            if (!sOption.next) return value;
+            console.log(this.extraState.path[index]);
             this.renderOption(
-              { index: index + 1, option: sOption },
+              {
+                index: index + 1,
+                option: sOption,
+                onSelect: (index, selected) =>
+                  this.onOptionSelected(index, option, selected, extraState),
+              },
               extraState
             );
+
             return value;
           }
         );
