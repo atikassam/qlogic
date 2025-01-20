@@ -271,6 +271,7 @@ const DefineLazyData = {
 
       let path = '[';
       for (const pathItem of block.extraState.path) {
+        if (pathItem.removed) continue;
         if (pathItem.index > 0) path += ', ';
         path += `{ id: '${pathItem.id}' }`;
         if (pathItem.all) break;
