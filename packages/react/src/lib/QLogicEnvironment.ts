@@ -41,8 +41,11 @@ export type QLogicEnvironmentLazyDataOption = {
 
 export type QLogicEnvironmentLazyData<T = any> = QLogicEnvironmentLazyDataOption & {
   name: string;
-  next: QLogicEnvironmentLazyDataOption[]
-  func: (option: QLogicExecutionCtx<T>, path: (string | number)[]) => any;
+  next: QLogicEnvironmentLazyDataOption[];
+  func: (
+    option: QLogicExecutionCtx<T>,
+    path: ({ id: string } | { index: number })[]
+  ) => any;
 };
 
 export type QLogicEnvironmentQFunc<T = any> = {
