@@ -11,7 +11,7 @@ type DefineLazyDataType = Blockly.Block & {
   extraState: {
     path: {
       id?: string;
-      self?: boolean;
+      all?: boolean;
       index: number;
       indexed?: boolean;
       removed?: boolean;
@@ -31,6 +31,13 @@ type DefineLazyDataType = Blockly.Block & {
     extraState: DefineLazyDataType['extraState']
   ) => void;
 
+  renderNextOption: (
+    opts: {
+      index: number;
+      option: QLogicEnvironmentLazyDataOption;
+    },
+    extraState: DefineLazyDataType['extraState']
+  ) => void;
   removeOption: (
     index: number,
     extraState: DefineLazyDataType['extraState']
@@ -65,14 +72,9 @@ const identifier = {
 const CreateSystemOptions = (id: string, name = '') => {
   return [
     {
-      id: `${id}.self`,
-      key: '__self__',
-      label: `${name} Self`,
-    },
-    {
-      id: `${id}.only`,
-      key: '__at__',
-      label: `${name} Only`,
+      id: `${id}.all`,
+      key: '__all__',
+      label: `${name} all`,
     },
   ];
 };
@@ -163,17 +165,27 @@ const DefineLazyData = {
         if (!option.isList) {
           this.removeInput(identifier.index(index), true);
           this.removeInput(identifier.system(index), true);
+          this.renderNextOption({ index, option }, extraState);
           return;
         }
 
         this.removeInput(identifier.system(index), true);
+        this.removeInput(identifier.index(index), true);
         this.appendDummyInput(identifier.system(index)).appendField(
           new FieldDropdown(
-            CreateSystemOptions('').map((option) => [option.label, option.id]),
+            [
+              ['All', '.all'],
+              ['At', '.at'],
+            ],
             (value) => {
-              extraState.path[index].self = value.endsWith('.self');
+              if (value === '.all') {
+                extraState.path[index].all = true;
+                this.removeOption(index, extraState);
+                this.removeInput(identifier.index(index), true);
+                return value;
+              }
 
-              if (value.endsWith('.only')) {
+              if (value === '.at') {
                 this.removeInput(identifier.index(index), true);
                 this.appendValueInput(identifier.index(index))
                   .appendField('Index')
@@ -184,6 +196,8 @@ const DefineLazyData = {
                     identifier.index(index),
                     identifier.id(index + 1)
                   );
+
+                this.renderNextOption({ index, option }, extraState);
               } else {
                 this.removeInput(identifier.index(index), true);
               }
@@ -198,6 +212,20 @@ const DefineLazyData = {
             identifier.system(index),
             identifier.id(index + 1)
           );
+      },
+      renderNextOption(opt, extraState) {
+        const { index = 0, option } = opt;
+        if (!option.next) return;
+
+        this.renderOption(
+          {
+            index: index + 1,
+            option: option,
+            onSelect: (index, selected) =>
+              this.onOptionSelected(index, option, selected, extraState),
+          },
+          extraState
+        );
       },
       renderOption(opt, extraState) {
         const { index = 0, option } = opt;
@@ -230,19 +258,6 @@ const DefineLazyData = {
             const sOption = option.next.find((opt) => opt.id === value);
             if (!sOption) return;
             onSelect?.(index, sOption);
-
-            if (!sOption.next) return value;
-            console.log(this.extraState.path[index]);
-            this.renderOption(
-              {
-                index: index + 1,
-                option: sOption,
-                onSelect: (index, selected) =>
-                  this.onOptionSelected(index, option, selected, extraState),
-              },
-              extraState
-            );
-
             return value;
           }
         );
@@ -261,7 +276,7 @@ const DefineLazyData = {
       for (const pathItem of block.extraState.path) {
         if (pathItem.index > 0) path += ', ';
         path += `'${pathItem.id}'`;
-        if (pathItem.self) break;
+        if (pathItem.all) break;
         if (pathItem.indexed) {
           path +=
             ', ' +
