@@ -1,6 +1,6 @@
 {
   "name": "@qlogic/nodejs",
-  "version": "2.11.2",
+  "version": "2.11.3",
   "dependencies": {
     "jsdom": "^25.0.1"
   },
