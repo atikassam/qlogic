@@ -3,6 +3,7 @@ import { Box, BoxProps, CardProps } from '@mui/material';
 import { init } from '../../blockly';
 import * as Blockly from 'blockly';
 import { useQLogicBuilder } from './QLogicBuilderProvider';
+import _ from 'lodash';
 
 export type QLogicBuilderProps = {
   sounds?: boolean;
@@ -19,13 +20,13 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
   const isInitialized = useRef(false);
   const [workspace, setWorkspace] = useState<Blockly.Workspace | null>(null);
 
-  const regenerate = useCallback((_e: any) => {
+  const regenerate = useCallback(_.throttle((_e: any) => {
     if (!workspace || (Blockly.getMainWorkspace() as any).isDragging()) {
       return; // Don't update code mid-drag.
     }
 
     ctx.setState(Blockly.serialization.workspaces.save(workspace));
-  }, [ctx, workspace]);
+  }, 500), [ctx, workspace]);
 
   useEffect(() => {
     if (isInitialized.current) return; // Skip if already initialized
