@@ -27,29 +27,19 @@ type DefineLazyDataType = Blockly.Block & {
   onOptionSelected: (
     index: number,
     parent: QLogicEnvironmentLazyDataOption,
-    option: QLogicEnvironmentLazyDataOption,
-    extraState: DefineLazyDataType['extraState']
+    option: QLogicEnvironmentLazyDataOption
   ) => void;
 
-  renderNextOption: (
-    opts: {
-      index: number;
-      option: QLogicEnvironmentLazyDataOption;
-    },
-    extraState: DefineLazyDataType['extraState']
-  ) => void;
-  removeOption: (
-    index: number,
-    extraState: DefineLazyDataType['extraState']
-  ) => void;
-  renderOption: (
-    opts: {
-      index: number;
-      option: QLogicEnvironmentLazyDataOption;
-      onSelect?(index: number, option: QLogicEnvironmentLazyDataOption): void;
-    },
-    extraState: DefineLazyDataType['extraState']
-  ) => void;
+  renderNextOption: (opts: {
+    index: number;
+    option: QLogicEnvironmentLazyDataOption;
+  }) => void;
+  removeOption: (index: number) => void;
+  renderOption: (opts: {
+    index: number;
+    option: QLogicEnvironmentLazyDataOption;
+    onSelect?(index: number, option: QLogicEnvironmentLazyDataOption): void;
+  }) => void;
 
   renderOptionDetails: (opts: {
     name: string;
@@ -119,13 +109,19 @@ const DefineLazyData = {
     const func = appendSystemOptions(_func);
 
     return {
-      extraState: {
-        path: [] as DefineLazyDataType['extraState']['path'],
-      },
+      extraState: null as any,
+      // extraState: { path: [] } as any,
 
       init() {
         if (this.isInitialized) return;
         this.isInitialized = true;
+        console.log('extraState', this.id, JSON.stringify(this.extraState));
+
+        if (!this.extraState) {
+          this.extraState = {
+            path: [],
+          };
+        }
 
         this.appendDummyInput(func.name).appendField(func.name);
 
@@ -133,23 +129,33 @@ const DefineLazyData = {
         this.setInputsInline(true);
         this.setColour(172);
 
-        this.renderOption({ index: 0, option: func }, this.extraState);
+        this.renderOption({ index: 0, option: func });
       },
 
-      saveExtraState() {
+      saveExtraState(_self) {
+        console.log(_self);
         for (const path of this.extraState.path) {
           const input = this.getInput(identifier.index(path.index));
           path.indexed = !!input?.connection?.getSourceBlock().id;
         }
+
+        console.log(
+          'Saving extraState',
+          this.id,
+          JSON.stringify(this.extraState)
+        );
         return this.extraState;
       },
 
       loadExtraState(extraState) {
         this.extraState = extraState;
+        console.log('extraState', this.id, JSON.stringify(this.extraState));
       },
 
-      removeOption(index: number, extraState) {
-        const removables = extraState.path.filter((item) => item.index > index);
+      removeOption(index: number) {
+        const removables = this.extraState.path.filter(
+          (item) => item.index > index
+        );
 
         for (const item of removables) {
           this.removeInput(identifier.id(item.index), true);
@@ -159,11 +165,11 @@ const DefineLazyData = {
           item.removed = true;
         }
       },
-      onOptionSelected(index, parent, option, extraState) {
+      onOptionSelected(index, parent, option) {
         if (!option.isList) {
           this.removeInput(identifier.index(index), true);
           this.removeInput(identifier.system(index), true);
-          this.renderNextOption({ index, option }, extraState);
+          this.renderNextOption({ index, option });
           return;
         }
 
@@ -175,29 +181,32 @@ const DefineLazyData = {
               ['All', '.all'],
               ['At', '.at'],
             ],
-            (value) => {
+            function (value) {
+              // @ts-ignore
+              const block = this.getSourceBlock() as DefineLazyDataType;
               if (value === '.all') {
-                extraState.path[index].all = true;
-                this.removeOption(index, extraState);
-                this.removeInput(identifier.index(index), true);
+                block.extraState.path[index].all = true;
+                block.removeOption(index);
+                block.removeInput(identifier.index(index), true);
                 return value;
               }
 
               if (value === '.at') {
-                this.removeInput(identifier.index(index), true);
-                this.appendValueInput(identifier.index(index))
+                block.removeInput(identifier.index(index), true);
+                block
+                  .appendValueInput(identifier.index(index))
                   .appendField('Index')
                   .setCheck('Number');
 
-                if (this.getInput(identifier.id(index + 1)))
-                  this.moveInputBefore(
+                if (block.getInput(identifier.id(index + 1)))
+                  block.moveInputBefore(
                     identifier.index(index),
                     identifier.id(index + 1)
                   );
 
-                this.renderNextOption({ index, option }, extraState);
+                block.renderNextOption({ index, option });
               } else {
-                this.removeInput(identifier.index(index), true);
+                block.removeInput(identifier.index(index), true);
               }
               return value;
             }
@@ -211,45 +220,45 @@ const DefineLazyData = {
             identifier.id(index + 1)
           );
       },
-      renderNextOption(opt, extraState) {
+      renderNextOption(opt) {
         const { index = 0, option } = opt;
         if (!option.next) return;
 
-        this.renderOption(
-          {
-            index: index + 1,
-            option: option,
-            onSelect: (index, selected) =>
-              this.onOptionSelected(index, option, selected, extraState),
-          },
-          extraState
-        );
+        this.renderOption({
+          index: index + 1,
+          option: option,
+          onSelect: (index, selected) =>
+            this.onOptionSelected(index, option, selected),
+        });
       },
-      renderOption(opt, extraState) {
+      renderOption(opt) {
         const { index = 0, option } = opt;
 
         const onSelect =
           opt.onSelect ??
           ((index, selected) =>
-            this.onOptionSelected(index, option, selected, extraState));
+            this.onOptionSelected(index, option, selected));
 
         if (!option.next) return;
         const id = identifier.id(index);
 
         this.removeInput(id, true);
         const input = this.appendDummyInput(id);
-        extraState.path[index] = { index };
+        this.extraState.path[index] = { index };
         const dropdown = new Blockly.FieldDropdown(
           [
             [`Select ${option.label}`, '__none__'],
             ...option.next.map((option) => [option.label, option.id]),
           ] as [string, string][],
-          (value) => {
-            this.removeOption(index, extraState);
+          function (value) {
+            // @ts-ignore
+            const block = this.getSourceBlock() as DefineLazyDataType;
 
-            if (extraState.path[index]) {
-              extraState.path[index].id = value;
-              extraState.path[index].removed = false;
+            block.removeOption(index);
+            if (block.extraState.path[index]) {
+              block.extraState.path[index].id = value;
+              block.extraState.path[index].removed = false;
+              console.log('Selected', value, block.extraState);
             }
             if (!option.next) return value;
 
@@ -268,7 +277,7 @@ const DefineLazyData = {
   Generator:
     (func: QLogicEnvironmentLazyData) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-
+      console.log('block', block.extraState);
       let path = '[';
       for (const pathItem of block.extraState.path) {
         if (pathItem.removed) break;
@@ -282,8 +291,7 @@ const DefineLazyData = {
             javascript.Order.ATOMIC
           );
 
-          path += `, { index: ${code} }`
-
+          path += `, { index: ${code} }`;
         }
       }
 
