@@ -182,7 +182,7 @@ const DefineLazyData = {
               ['At', '.at'],
             ],
             function (value) {
-              // @ts-ignore
+              // @ts-expect-error - this is a block
               const block = this.getSourceBlock() as DefineLazyDataType;
               if (value === '.all') {
                 block.extraState.path[index].all = true;
@@ -251,7 +251,7 @@ const DefineLazyData = {
             ...option.next.map((option) => [option.label, option.id]),
           ] as [string, string][],
           function (value) {
-            // @ts-ignore
+            // @ts-expect-error - this is a block
             const block = this.getSourceBlock() as DefineLazyDataType;
 
             block.removeOption(index);
