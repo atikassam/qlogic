@@ -1,7 +1,7 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
 import {
-  QLogicEnvironmentLazyData,
+  QLogicEnvironmentLazyDataSerializable,
   QLogicEnvironmentLazyDataOption,
 } from '../../lib/QLogicEnvironment';
 import { FieldDropdown } from 'blockly';
@@ -70,8 +70,8 @@ const CreateSystemOptions = (id: string, name = '') => {
 };
 
 const appendSystemOptions = (
-  ld: QLogicEnvironmentLazyData
-): QLogicEnvironmentLazyData => {
+  ld: QLogicEnvironmentLazyDataSerializable
+): QLogicEnvironmentLazyDataSerializable => {
   const addSystemOptions = <T extends QLogicEnvironmentLazyDataOption>(
     option: T
   ): T => {
@@ -90,7 +90,7 @@ const appendSystemOptions = (
 };
 
 const DefineLazyData = {
-  register: (func: QLogicEnvironmentLazyData) => {
+  register: (func: QLogicEnvironmentLazyDataSerializable) => {
     if (javascript.javascriptGenerator.forBlock[DefineLazyData.name(func)]) {
       return;
     }
@@ -102,10 +102,10 @@ const DefineLazyData = {
       DefineLazyData.Generator(func) as any;
   },
 
-  name: (func: Pick<QLogicEnvironmentLazyData, 'name'>) =>
+  name: (func: Pick<QLogicEnvironmentLazyDataSerializable, 'name'>) =>
     `lazy_data_${func.name}`,
 
-  Block: (_func: QLogicEnvironmentLazyData) => {
+  Block: (_func: QLogicEnvironmentLazyDataSerializable) => {
     const func = appendSystemOptions(_func);
 
     return {
@@ -180,6 +180,7 @@ const DefineLazyData = {
             [
               ['All', '.all'],
               ['At', '.at'],
+              ['Match', '.match'],
             ],
             function (value) {
               // @ts-expect-error - this is a block
@@ -189,9 +190,9 @@ const DefineLazyData = {
                 block.removeOption(index);
                 block.removeInput(identifier.index(index), true);
                 return value;
-              }
+              } else if (value === '.match') {
 
-              if (value === '.at') {
+              } else if (value === '.at') {
                 block.removeInput(identifier.index(index), true);
                 block
                   .appendValueInput(identifier.index(index))
@@ -275,7 +276,7 @@ const DefineLazyData = {
   },
 
   Generator:
-    (func: QLogicEnvironmentLazyData) =>
+    (func: QLogicEnvironmentLazyDataSerializable) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
       console.log('block', block.extraState);
       let path = '[';

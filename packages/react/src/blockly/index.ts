@@ -2,12 +2,14 @@ import * as Blockly from 'blockly';
 import { toolboxJson } from './toolbox';
 import './index.css';
 import { theme } from './theme';
-import { QLogicEnvironment } from '../lib/QLogicEnvironment';
+import { QLogicEnvironment, QLogicExecutionOptionsSerializable } from '../lib/QLogicEnvironment';
 import IsTruthyValue from './blocks/is-truthy-value';
 import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
 import DefineQfunc from './blocks/define-qfunc';
 import DefineLazyData from './blocks/define-lazy-data';
+import { defineFunctionBlock } from './blocks/define-function-blocks';
+import { defineQFunctionBlock } from './blocks/define-qfunction-blocks';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -16,6 +18,12 @@ import DefineLazyData from './blocks/define-lazy-data';
   javascript.javascriptGenerator.forBlock[IsTruthyValue.name] =
     IsTruthyValue.Generator as any;
 })();
+
+export function setupBlocklyWithOptions(options: QLogicExecutionOptionsSerializable) {
+  options.functions?.forEach(defineFunctionBlock);
+  options.qfuns?.forEach(defineQFunctionBlock);
+  options.lazyData?.forEach(DefineLazyData.register);
+}
 
 /**
  * Initialize the page once everything is loaded.
@@ -35,7 +43,7 @@ export function init(opts: {
   const toolbox = JSON.parse(toolboxString);
 
   if (env?.options) {
-    QLogicEnvironment.PrepareBlockly(env.options);
+    setupBlocklyWithOptions(env.options);
 
     toolbox.contents.push({
       kind: 'CATEGORY',

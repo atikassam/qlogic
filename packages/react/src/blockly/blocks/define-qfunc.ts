@@ -1,17 +1,17 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentQFunc } from '../../lib/QLogicEnvironment';
+import { QLogicEnvironmentQFuncSerializable } from '../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from './utill';
 
 export default {
-  name: (func: Pick<QLogicEnvironmentQFunc, 'name'>) => `custom_qfunction_${func.name}`,
+  name: (func: Pick<QLogicEnvironmentQFuncSerializable, 'name'>) => `custom_qfunction_${func.name}`,
 
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
    * @param func The QLogicEnvironmentFunc describing the function to create a block for.
    * @returns An object describing the block's initialization logic.
    */
-  Block: (func: QLogicEnvironmentQFunc) =>
+  Block: (func: QLogicEnvironmentQFuncSerializable) =>
     ({
       init: function () {
         // Set the block's label with the function name
@@ -65,7 +65,7 @@ export default {
    * @returns A generator function for Blockly.
    */
   Generator:
-    (func: QLogicEnvironmentQFunc) =>
+    (func: QLogicEnvironmentQFuncSerializable) =>
     (block: Blockly.Block, generator: javascript.JavascriptGenerator) => {
       // Map function arguments to their corresponding Blockly values
       const args =

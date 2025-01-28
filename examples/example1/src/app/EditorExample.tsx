@@ -92,22 +92,21 @@ export function EditorExample() {
                 name: 'Type',
                 type: 'options',
                 label: 'Type',
-                options: () => {
-                  return [
-                    { label: 'Premium', value: 'premium' },
-                    {
-                      label: 'Tax',
-                      value: 'tax',
-                      options: [
-                        { label: 'GST', value: 'gst' },
-                        { label: 'VAT', value: 'vat' },
-                        { label: 'Sales Tax', value: 'sales_tax' },
-                      ],
-                    },
-                    { label: 'Fee', value: 'fee' },
-                    { label: 'Other', value: 'other' },
-                  ];
-                },
+                options: [
+                  { label: 'Premium', value: 'premium' },
+                  {
+                    label: 'Tax',
+                    value: 'tax',
+                    // type: 'options',
+                    // options: [
+                    //   { label: 'GST', value: 'gst' },
+                    //   { label: 'VAT', value: 'vat' },
+                    //   { label: 'Sales Tax', value: 'sales_tax' },
+                    // ],
+                  },
+                  { label: 'Fee', value: 'fee' },
+                  { label: 'Other', value: 'other' },
+                ],
               },
             ],
             func: (ctx, returns) => console.log(returns),
@@ -150,7 +149,7 @@ export function EditorExample() {
             ],
             func: (opt, msg: string) => {
               console.log('Alert', msg);
-              alert(msg)
+              alert(msg);
             },
           },
         ],

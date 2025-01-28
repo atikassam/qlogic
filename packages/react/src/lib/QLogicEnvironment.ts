@@ -1,13 +1,7 @@
 import { isNode } from './node.env';
 
 import * as Comlink from 'comlink';
-import * as Blockly from 'blockly';
-import { javascriptGenerator } from 'blockly/javascript';
-import _ from 'lodash';
-import { defineFunctionBlock } from '../blockly/blocks/define-function-blocks';
 import Worker from 'web-worker';
-import { defineQFunctionBlock } from '../blockly/blocks/define-qfunction-blocks';
-import DefineLazyData from '../blockly/blocks/define-lazy-data';
 
 export type QLogicExecutionCtx<T = any> = {
   data: T;
@@ -17,7 +11,7 @@ export type OptionArgType = {
   label?: string;
   name: string;
   type: 'options';
-  options: { label: string; value: any }[] | (() => { label: string; value: any }[]);
+  options: { label: string; value: any }[];
 };
 
 export type ArgType =
@@ -39,27 +33,43 @@ export type QLogicEnvironmentLazyDataOption = {
   next?: QLogicEnvironmentLazyDataOption[]
 }
 
-export type QLogicEnvironmentLazyData<T = any> = QLogicEnvironmentLazyDataOption & {
+export type QLogicEnvironmentLazyDataSerializable = Omit<QLogicEnvironmentLazyDataOption, 'isList'> & {
   name: string;
   next: QLogicEnvironmentLazyDataOption[];
+};
+
+export type QLogicEnvironmentLazyData<T = any> = QLogicEnvironmentLazyDataSerializable & {
   func: (
     option: QLogicExecutionCtx<T>,
     path: ({ id: string } | { index: number })[]
   ) => any;
 };
 
-export type QLogicEnvironmentQFunc<T = any> = {
+export type QLogicEnvironmentQFuncSerializable = {
   name: string;
   conditional?: boolean;
   returns?: ArgType[];
+};
+
+export type QLogicEnvironmentQFunc<T = any> = QLogicEnvironmentQFuncSerializable & {
   func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
 };
 
-export type QLogicEnvironmentFunc<T = any> = {
+export type QLogicEnvironmentFuncSerializable = {
   name: string;
   args?: ArgType[];
   returnType?: string;
+};
+
+export type QLogicEnvironmentFunc<T = any> = QLogicEnvironmentFuncSerializable & {
   func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
+};
+
+export type QLogicExecutionOptionsSerializable = {
+  allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
+  qfuns?: QLogicEnvironmentQFuncSerializable[];
+  functions?: QLogicEnvironmentFuncSerializable[];
+  lazyData?: QLogicEnvironmentLazyDataSerializable[];
 };
 
 export type QLogicExecutionOptions<T = any> = {
@@ -68,6 +78,10 @@ export type QLogicExecutionOptions<T = any> = {
   functions?: QLogicEnvironmentFunc<T>[];
   lazyData?: QLogicEnvironmentLazyData<T>[];
 };
+
+export type WLink = {
+  evaluate(logic: any, options: QLogicExecutionOptionsSerializable, names: string[], functions: any, data: any): Promise<any>;
+}
 
 const createWorker = () => {
   let worker;
@@ -80,27 +94,21 @@ const createWorker = () => {
     );
   }
   // const worker = new Worker('./execute-unsafe-code.worker.esm.js');
-  const link = Comlink.wrap<any>(worker);
+  const link = Comlink.wrap<WLink>(worker);
 
   return { worker, link };
 };
 
 export class QLogicEnvironment<T = any> {
-  static create<T>(options?: QLogicExecutionOptions<T>) {
+  static create<T>(options: QLogicExecutionOptions<T>) {
     const { worker, link } = createWorker();
     return new QLogicEnvironment<T>(worker, link, options);
   }
 
-  static PrepareBlockly(options: QLogicExecutionOptions) {
-    options.functions?.forEach(defineFunctionBlock);
-    options.qfuns?.forEach(defineQFunctionBlock);
-    options.lazyData?.forEach(DefineLazyData.register);
-  }
-
   private constructor(
     private worker: Worker,
-    private link: Comlink.Remote<any>,
-    public readonly options?: QLogicExecutionOptions<T>
+    private link: Comlink.Remote<WLink>,
+    public readonly options: QLogicExecutionOptions<T>
   ) {}
 
   async execute(logic: any, _options: QLogicExecutionCtx<T>): Promise<any> {
@@ -108,11 +116,6 @@ export class QLogicEnvironment<T = any> {
       console.error('No logic provided');
       return;
     }
-
-    if (this.options) QLogicEnvironment.PrepareBlockly(this.options);
-    const workspace = new Blockly.Workspace();
-    Blockly.serialization.workspaces.load(logic, workspace);
-    const code = javascriptGenerator.workspaceToCode(workspace);
 
     const functions = {
       ...Object.fromEntries([
@@ -132,13 +135,17 @@ export class QLogicEnvironment<T = any> {
     };
 
     const names = Object.keys(functions);
-
     return this.link.evaluate(
-      `(async function main() { ${code} \n\treturn 'OK'; })()`,
+      logic,
+      QLogicEnvironment.toSerializable(this.options),
       names,
       Comlink.proxy(functions),
       _options.data
     );
+  }
+
+  static toSerializable(options: QLogicExecutionOptions): QLogicExecutionOptionsSerializable {
+    return JSON.parse(JSON.stringify(options))
   }
 
   terminate() {

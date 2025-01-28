@@ -1,9 +1,9 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentFunc } from '../../lib/QLogicEnvironment';
+import { QLogicEnvironmentFunc, QLogicEnvironmentFuncSerializable } from '../../lib/QLogicEnvironment';
 import DefineFunc from './define-func';
 
-export function defineFunctionBlock(func: QLogicEnvironmentFunc) {
+export function defineFunctionBlock(func: QLogicEnvironmentFuncSerializable) {
   if (javascript.javascriptGenerator.forBlock[DefineFunc.name(func)]) return;
 
   Blockly.common.defineBlocks({
