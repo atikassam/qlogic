@@ -3,8 +3,8 @@ import * as javascript from 'blockly/javascript';
 import { QLogicEnvironmentQFuncSerializable } from '../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from './utill';
 
-export default {
-  name: (func: Pick<QLogicEnvironmentQFuncSerializable, 'name'>) => `custom_qfunction_${func.name}`,
+export const DefineQFunc = {
+  name: (func: Pick<QLogicEnvironmentQFuncSerializable, 'name'>) => `qfunc_${func.name}`,
 
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
@@ -84,7 +84,7 @@ export default {
 
       const statement_logic = generator.statementToCode(block, 'logic');
       // Return the function call as a code string
-      let code = `await ${func.name}(await (async () => {\n` +
+      let code = `await ${DefineQFunc.name(func)}(await (async () => {\n` +
         `${statement_logic}` +
         `  return {\n${func.returns?.map((arg) => `    ${arg.name}: ${args.shift()}`).join(',\n')}\n  };\n` +
       `})());\n`;
@@ -97,3 +97,5 @@ export default {
       return code;
     },
 };
+
+export default DefineQFunc;

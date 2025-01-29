@@ -1,5 +1,5 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { QLogicEnvironment } from '@qlogic/nodejs/node';
+import { QLogicEnvironment } from '@qlogic/react/node';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -9,7 +9,7 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const env = QLogicEnvironment.create({
+    const env = QLogicEnvironment.create<any>({
       functions: [
         {
           name: 'add',
@@ -149,7 +149,7 @@ export class AppService implements OnApplicationBootstrap {
                           },
                           next: {
                             block: {
-                              type: 'custom_function_alert',
+                              type: 'func_alert',
                               id: 'C,heA5tJ8ZJ=dwD-enI9',
                               inputs: {
                                 msg: {

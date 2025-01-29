@@ -115,7 +115,6 @@ const DefineLazyData = {
       init() {
         if (this.isInitialized) return;
         this.isInitialized = true;
-        console.log('extraState', this.id, JSON.stringify(this.extraState));
 
         if (!this.extraState) {
           this.extraState = {
@@ -133,23 +132,16 @@ const DefineLazyData = {
       },
 
       saveExtraState(_self) {
-        console.log(_self);
         for (const path of this.extraState.path) {
           const input = this.getInput(identifier.index(path.index));
           path.indexed = !!input?.connection?.getSourceBlock().id;
         }
 
-        console.log(
-          'Saving extraState',
-          this.id,
-          JSON.stringify(this.extraState)
-        );
         return this.extraState;
       },
 
       loadExtraState(extraState) {
         this.extraState = extraState;
-        console.log('extraState', this.id, JSON.stringify(this.extraState));
       },
 
       removeOption(index: number) {
@@ -259,7 +251,6 @@ const DefineLazyData = {
             if (block.extraState.path[index]) {
               block.extraState.path[index].id = value;
               block.extraState.path[index].removed = false;
-              console.log('Selected', value, block.extraState);
             }
             if (!option.next) return value;
 
@@ -278,7 +269,6 @@ const DefineLazyData = {
   Generator:
     (func: QLogicEnvironmentLazyDataSerializable) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-      console.log('block', block.extraState);
       let path = '[';
       for (const pathItem of block.extraState.path) {
         if (pathItem.removed) break;
@@ -297,7 +287,7 @@ const DefineLazyData = {
       }
 
       path += ']';
-      const code = `await ${func.name}(${path})`;
+      const code = `await ${DefineLazyData.name(func)}(${path})`;
       return [code, javascript.Order.ATOMIC];
     },
 };
