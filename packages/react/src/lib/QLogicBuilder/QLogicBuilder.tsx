@@ -29,12 +29,20 @@ export function QLogicBuilder(props: QLogicBuilderProps) {
   }, 500), [ctx, workspace]);
 
   useEffect(() => {
-    if (isInitialized.current) return; // Skip if already initialized
+    if (isInitialized.current || !ctx.environment) return; // Skip if already initialized
 
     if (blocklyDivRef.current) {
-      setWorkspace(init({ env: ctx.environment, sounds, initialState: ctx.initialState }));
+      const { workspace, dispose } = init({ env: ctx.environment, sounds, initialState: ctx.initialState });
+      setWorkspace(workspace);
       isInitialized.current = true; // Mark as initialized
+
+      return () => {
+        isInitialized.current = false;
+        dispose();
+      };
     }
+
+    return;
   }, [blocklyDivRef.current]);
 
   useEffect(() => {

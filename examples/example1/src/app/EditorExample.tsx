@@ -20,6 +20,7 @@ export function EditorExample() {
   const env = useMemo(
     () =>
       QLogicEnvironment.create<{ title: string }>({
+        namespace: QLogicEnvironment.toNamespace('qlogic_a7'),
         allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
         lazyData: [
           {

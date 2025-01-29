@@ -5,7 +5,7 @@ export type QLogicBuilderHelper = {
   initialState?: any;
   state: any | null;
   setState: (state: any) => void;
-  environment?: QLogicEnvironment;
+  environment: QLogicEnvironment;
 };
 
 const QLogicBuilderCtx = React.createContext<QLogicBuilderHelper | undefined>(
@@ -14,7 +14,7 @@ const QLogicBuilderCtx = React.createContext<QLogicBuilderHelper | undefined>(
 
 export const QLogicBuilderProvider: FC<{
   children: (helper: QLogicBuilderHelper) => React.ReactNode;
-  environment?: QLogicEnvironment;
+  environment: QLogicEnvironment;
   initialState?: any;
 }> = (props) => {
   const { children, environment, initialState } = props;

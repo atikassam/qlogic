@@ -3,13 +3,13 @@ import 'ses';
 import('./polyfill').then(async () => {
   const Comlink = await import('comlink');
   const { javascriptGenerator } = await import('blockly/javascript');
-  const { setupBlocklyWithOptions }  = await import('./blockly');
+  const { initBlocklyWithOptions }  = await import('./blockly');
   const Blockly = await import('blockly');
 
   Comlink.expose({
     evaluate: async (logic: any, options: any, names: any, functions: any, data: any) => {
       try {
-        setupBlocklyWithOptions(options);
+        initBlocklyWithOptions(options);
         const workspace = new Blockly.Workspace();
         Blockly.serialization.workspaces.load(logic, workspace);
         const code = javascriptGenerator.workspaceToCode(workspace);

@@ -1,7 +1,8 @@
 import { isNode } from './node.env';
-
+import SparkMD5 from 'spark-md5';
 import * as Comlink from 'comlink';
 import Worker from 'web-worker';
+
 import DefineLazyData from '../blockly/blocks/define-lazy-data';
 import DefineFunc from '../blockly/blocks/define-func';
 import DefineQfunc from '../blockly/blocks/define-qfunc';
@@ -74,15 +75,17 @@ export type QLogicEnvironmentFunc<T = any> =
     func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
   };
 
+export type QLogicEnvironmentNamespace = `qlogic_${string}`;
+
 export type QLogicExecutionOptionsSerializable = {
+  namespace: QLogicEnvironmentNamespace;
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
   qfuns?: QLogicEnvironmentQFuncSerializable[];
   functions?: QLogicEnvironmentFuncSerializable[];
   lazyData?: QLogicEnvironmentLazyDataSerializable[];
 };
 
-export type QLogicExecutionOptions<T = any> = {
-  allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
+export type QLogicExecutionOptions<T = any> = Omit<QLogicExecutionOptionsSerializable, keyof { qfuns: any, functions: any, lazyData: any }> & {
   qfuns?: QLogicEnvironmentQFunc<T>[];
   functions?: QLogicEnvironmentFunc<T>[];
   lazyData?: QLogicEnvironmentLazyData<T>[];
@@ -115,8 +118,18 @@ const createWorker = () => {
 };
 
 export class QLogicEnvironment<T = any> {
+
+  static toNamespace(name: string): QLogicEnvironmentNamespace {
+    return `qlogic_${SparkMD5.hash(name) as string}`;
+  }
+
   static create<T>(options: QLogicExecutionOptions<T>) {
     const { worker, link } = createWorker();
+    if (!options.namespace) throw new Error('namespace is required');
+    else if (!options.namespace.startsWith('qlogic_')) throw new Error('namespace should start with qlogic_');
+    else if (!/^[a-z0-9_]+$/i.test(options.namespace)) throw new Error('namespace should be alphanumeric');
+
+
     return new QLogicEnvironment<T>(worker, link, options);
   }
 
@@ -135,15 +148,15 @@ export class QLogicEnvironment<T = any> {
     const functions = {
       ...Object.fromEntries([
         ...(this.options?.lazyData?.map(({ name, func }) => [
-          DefineLazyData.name({ name }),
+          DefineLazyData.name(this.options, { name }),
           (...args: any[]) => (func as any)(_options, ...args),
         ]) || []),
         ...(this.options?.functions?.map(({ name, func }) => [
-          DefineFunc.name({ name }),
+          DefineFunc.name(this.options, { name }),
           (...args: any[]) => func(_options, ...args),
         ]) || []),
         ...(this.options?.qfuns?.map(({ name, func }) => [
-          DefineQfunc.name({ name }),
+          DefineQfunc.name(this.options, { name }),
           (...args: any[]) => func(_options, ...args),
         ]) || []),
       ]),

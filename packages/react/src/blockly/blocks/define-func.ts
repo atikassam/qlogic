@@ -1,18 +1,35 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentFuncSerializable } from '../../lib/QLogicEnvironment';
+import { QLogicEnvironmentFuncSerializable, QLogicExecutionOptionsSerializable } from '../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from './utill';
 
 export const DefineFunc = {
-  name: (func: Pick<QLogicEnvironmentFuncSerializable, 'name'>) =>
-    `func_${func.name}`,
+  register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) => {
+    if (javascript.javascriptGenerator.forBlock[DefineFunc.name(opts, func)]) {
+      return;
+    }
+
+    Blockly.common.defineBlocks({
+      [DefineFunc.name(opts, func)]: DefineFunc.Block(opts, func),
+    });
+    javascript.javascriptGenerator.forBlock[DefineFunc.name(opts, func)] =
+      DefineFunc.Generator(opts, func) as any;
+  },
+
+  unregister: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) => {
+    delete Blockly.Blocks[DefineFunc.name(opts, func)];
+    delete javascript.javascriptGenerator.forBlock[DefineFunc.name(opts, func)];
+  },
+
+  name: (opts: QLogicExecutionOptionsSerializable, func: Pick<QLogicEnvironmentFuncSerializable, 'name'>) =>
+    `${opts.namespace}_func_${func.name}`,
 
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
    * @param func The QLogicEnvironmentFunc describing the function to create a block for.
    * @returns An object describing the block's initialization logic.
    */
-  Block: (func: QLogicEnvironmentFuncSerializable) =>
+  Block: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) =>
     ({
       init: function () {
         // Set the block's label with the function name
@@ -65,7 +82,7 @@ export const DefineFunc = {
    * @returns A generator function for Blockly.
    */
   Generator:
-    (func: QLogicEnvironmentFuncSerializable) =>
+    (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) =>
     (block: Blockly.Block, generator: javascript.JavascriptGenerator) => {
       // Map function arguments to their corresponding Blockly values
       const args =
@@ -83,7 +100,7 @@ export const DefineFunc = {
         }) || [];
 
       // Return the function call as a code string
-      const code = `await ${DefineFunc.name(func)}(${args.join(', ')})`;
+      const code = `await ${DefineFunc.name(opts, func)}(${args.join(', ')})`;
       if (!func.returnType) return code + ';\n'; // Add semicolon for expressions
       return [code, javascript.Order.ATOMIC]; // Add newline only for statements
     },

@@ -1,17 +1,36 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentQFuncSerializable } from '../../lib/QLogicEnvironment';
+import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from './utill';
 
 export const DefineQFunc = {
-  name: (func: Pick<QLogicEnvironmentQFuncSerializable, 'name'>) => `qfunc_${func.name}`,
+  register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) => {
+    if (javascript.javascriptGenerator.forBlock[DefineQFunc.name(opts, func)]) {
+      return;
+    }
+
+    Blockly.common.defineBlocks({
+      [DefineQFunc.name(opts, func)]: DefineQFunc.Block(opts, func),
+    });
+    javascript.javascriptGenerator.forBlock[DefineQFunc.name(opts, func)] =
+      DefineQFunc.Generator(opts, func) as any;
+  },
+
+  unregister: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) => {
+    delete Blockly.Blocks[DefineQFunc.name(opts, func)];
+    delete javascript.javascriptGenerator.forBlock[DefineQFunc.name(opts, func)];
+  },
+
+  name: (opts: QLogicExecutionOptionsSerializable, func: Pick<QLogicEnvironmentQFuncSerializable, 'name'>) =>
+    `${opts.namespace}_qfunc_${func.name}`,
 
   /**
    * Create a Blockly block for a given QLogicEnvironment function.
+   * @param opts The QLogicExecutionOptionsSerializable
    * @param func The QLogicEnvironmentFunc describing the function to create a block for.
    * @returns An object describing the block's initialization logic.
    */
-  Block: (func: QLogicEnvironmentQFuncSerializable) =>
+  Block: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) =>
     ({
       init: function () {
         // Set the block's label with the function name
@@ -61,11 +80,12 @@ export const DefineQFunc = {
 
   /**
    * Generate JavaScript code for a given block.
+   * @param opts The QLogicExecutionOptionsSerializable
    * @param func The QLogicEnvironmentFunc describing the function.
    * @returns A generator function for Blockly.
    */
   Generator:
-    (func: QLogicEnvironmentQFuncSerializable) =>
+    (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) =>
     (block: Blockly.Block, generator: javascript.JavascriptGenerator) => {
       // Map function arguments to their corresponding Blockly values
       const args =
@@ -84,7 +104,7 @@ export const DefineQFunc = {
 
       const statement_logic = generator.statementToCode(block, 'logic');
       // Return the function call as a code string
-      let code = `await ${DefineQFunc.name(func)}(await (async () => {\n` +
+      let code = `await ${DefineQFunc.name(opts, func)}(await (async () => {\n` +
         `${statement_logic}` +
         `  return {\n${func.returns?.map((arg) => `    ${arg.name}: ${args.shift()}`).join(',\n')}\n  };\n` +
       `})());\n`;

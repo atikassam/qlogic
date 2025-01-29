@@ -8,8 +8,6 @@ import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
 import DefineQfunc from './blocks/define-qfunc';
 import DefineLazyData from './blocks/define-lazy-data';
-import { defineFunctionBlock } from './blocks/define-function-blocks';
-import { defineQFunctionBlock } from './blocks/define-qfunction-blocks';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -19,10 +17,16 @@ import { defineQFunctionBlock } from './blocks/define-qfunction-blocks';
     IsTruthyValue.Generator as any;
 })();
 
-export function setupBlocklyWithOptions(options: QLogicExecutionOptionsSerializable) {
-  options.functions?.forEach(defineFunctionBlock);
-  options.qfuns?.forEach(defineQFunctionBlock);
-  options.lazyData?.forEach(DefineLazyData.register);
+export function initBlocklyWithOptions(options: QLogicExecutionOptionsSerializable) {
+  options.functions?.forEach((item) => DefineFunc.register(options, item));
+  options.qfuns?.forEach((item) => DefineQfunc.register(options, item));
+  options.lazyData?.forEach((item) => DefineLazyData.register(options, item));
+}
+
+export function deinitBlocklyWithOptions(options: QLogicExecutionOptionsSerializable) {
+  options.functions?.forEach((item) => DefineFunc.unregister(options, item));
+  options.qfuns?.forEach((item) => DefineQfunc.unregister(options, item));
+  options.lazyData?.forEach((item) => DefineLazyData.unregister(options, item));
 }
 
 /**
@@ -30,7 +34,7 @@ export function setupBlocklyWithOptions(options: QLogicExecutionOptionsSerializa
  */
 export function init(opts: {
   sounds?: boolean;
-  env?: QLogicEnvironment;
+  env: QLogicEnvironment;
   initialState?: any;
 }) {
   const { sounds, env, initialState } = opts;
@@ -43,7 +47,7 @@ export function init(opts: {
   const toolbox = JSON.parse(toolboxString);
 
   if (env?.options) {
-    setupBlocklyWithOptions(env.options);
+    initBlocklyWithOptions(env.options);
 
     toolbox.contents.push({
       kind: 'CATEGORY',
@@ -55,15 +59,15 @@ export function init(opts: {
       contents: [
         ...(env.options.lazyData?.map((func) => ({
           kind: 'BLOCK',
-          type: DefineLazyData.name(func),
+          type: DefineLazyData.name(opts.env.options, func),
         })) || []),
         ...(env.options.functions?.map((func) => ({
           kind: 'BLOCK',
-          type: DefineFunc.name(func),
+          type: DefineFunc.name(opts.env.options, func),
         })) || []),
         ...(env.options.qfuns?.map((func) => ({
           kind: 'BLOCK',
-          type: DefineQfunc.name(func),
+          type: DefineQfunc.name(opts.env.options, func),
         })) || []),
       ],
     });
@@ -87,8 +91,8 @@ export function init(opts: {
   workspace.zoomToFit();
 
   const allowedRootBlocks = opts.env?.options?.allowedRootBlocks?.map((b) => {
-    if ('qfunc' in b) return DefineQfunc.name({ name: b.qfunc });
-    return DefineFunc.name({ name: b.function });
+    if ('qfunc' in b) return DefineQfunc.name(opts.env.options, { name: b.qfunc });
+    return DefineFunc.name(opts.env.options, { name: b.function });
   });
 
   // Disable adding new blocks outside and selectively disable connected blocks
@@ -113,7 +117,13 @@ export function init(opts: {
     disableBlocks(block, disabled);
   });
 
-  return workspace;
+  return {
+    workspace,
+    dispose() {
+      workspace.dispose();
+      deinitBlocklyWithOptions(env.options);
+    }
+  };
 }
 
 function disableBlocks(block: Blockly.Block, disabled: boolean) {
