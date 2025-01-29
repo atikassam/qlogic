@@ -1,29 +1,38 @@
 import 'ses';
-import * as Comlink from 'comlink';
-// lockdown({ legacyRegeneratorRuntimeTaming: 'safe' });
 
-Comlink.expose({
-  evaluate: async (code: string, names: any, functions: any, data: any) => {
-    try {
-      const compartment = new Compartment({
-        globals: {
-          ...Object.fromEntries(
-            names.map((name: string) => [
-              name,
-              functions[name],
-            ])
-          ),
-        },
-        __options__: true,
-      });
+import('./polyfill').then(async () => {
+  const Comlink = await import('comlink');
+  const { javascriptGenerator } = await import('blockly/javascript');
+  const { initBlocklyWithOptions }  = await import('./blockly');
+  const Blockly = await import('blockly');
 
-      // Execute the provided code in the secure environment
-      const result = await compartment.evaluate(code);
+  Comlink.expose({
+    evaluate: async (logic: any, options: any, names: any, functions: any, data: any) => {
+      try {
+        initBlocklyWithOptions(options);
+        const workspace = new Blockly.Workspace();
+        Blockly.serialization.workspaces.load(logic, workspace);
+        const code = javascriptGenerator.workspaceToCode(workspace);
 
-      return { success: true, result };
-    } catch (error) {
-      console.log('Error:', error);
-      return { success: false, error: (error as Error).message };
-    }
-  },
-});
+        const compartment = new Compartment({
+          globals: {
+            ...Object.fromEntries(
+              names.map((name: string) => [
+                name,
+                functions[name],
+              ])
+            ),
+          },
+          __options__: true,
+        });
+
+        // Execute the provided code in the secure environment
+        const result = await compartment.evaluate(`(async function main() { ${code} \n\treturn 'OK'; })()`);
+        return { success: true, result };
+      } catch (error) {
+        console.log('Error:', error);
+        return { success: false, error: (error as Error).message };
+      }
+    },
+  });
+})

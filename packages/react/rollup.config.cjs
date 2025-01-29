@@ -3,6 +3,8 @@ const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
 const css = require('rollup-plugin-import-css');
 const OMT = require('@surma/rollup-plugin-off-main-thread');
+const inject = require('@rollup/plugin-inject');
+const path = require('node:path');
 
 function removeSourceMappingURL() {
   return {
@@ -27,7 +29,9 @@ function removeSourceMappingURL() {
 module.exports = withNx(
   {
     main: './src/index.ts',
-    additionalEntryPoints: ['./src/execute-unsafe-code.worker.ts'],
+    additionalEntryPoints: [
+      './src/execute-unsafe-code.worker.ts'
+    ],
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
@@ -39,14 +43,21 @@ module.exports = withNx(
       '@emotion/styled',
       '@emotion/react',
       'web-worker',
-      'jsdom'
+      'jsdom',
     ],
     format: ['esm', 'cjs', 'amd'],
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
   {
     plugins: [
-      // OMT({}),
+      inject({
+        include: ['**/*.worker.ts', '**/blockly/*.js'],
+        modules: {
+          window: path.resolve('src/polyfills/window.js'),
+          document: path.resolve('src/polyfills/document.js'),
+          DOMParser: path.resolve('src/polyfills/DOMParser.js'), // Add custom polyfill
+        }
+      }),
       removeSourceMappingURL(),
       css(),
       svg({

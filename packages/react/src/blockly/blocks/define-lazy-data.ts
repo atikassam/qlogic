@@ -1,10 +1,11 @@
 import * as Blockly from 'blockly';
+import { FieldDropdown } from 'blockly';
 import * as javascript from 'blockly/javascript';
 import {
-  QLogicEnvironmentLazyData,
   QLogicEnvironmentLazyDataOption,
+  QLogicEnvironmentLazyDataSerializable,
+  QLogicExecutionOptionsSerializable,
 } from '../../lib/QLogicEnvironment';
-import { FieldDropdown } from 'blockly';
 
 type DefineLazyDataType = Blockly.Block & {
   isInitialized: boolean;
@@ -70,8 +71,8 @@ const CreateSystemOptions = (id: string, name = '') => {
 };
 
 const appendSystemOptions = (
-  ld: QLogicEnvironmentLazyData
-): QLogicEnvironmentLazyData => {
+  ld: QLogicEnvironmentLazyDataSerializable
+): QLogicEnvironmentLazyDataSerializable => {
   const addSystemOptions = <T extends QLogicEnvironmentLazyDataOption>(
     option: T
   ): T => {
@@ -90,22 +91,27 @@ const appendSystemOptions = (
 };
 
 const DefineLazyData = {
-  register: (func: QLogicEnvironmentLazyData) => {
-    if (javascript.javascriptGenerator.forBlock[DefineLazyData.name(func)]) {
+  register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentLazyDataSerializable) => {
+    if (javascript.javascriptGenerator.forBlock[DefineLazyData.name(opts, func)]) {
       return;
     }
 
     Blockly.common.defineBlocks({
-      [DefineLazyData.name(func)]: DefineLazyData.Block(func),
+      [DefineLazyData.name(opts, func)]: DefineLazyData.Block(opts, func),
     });
-    javascript.javascriptGenerator.forBlock[DefineLazyData.name(func)] =
-      DefineLazyData.Generator(func) as any;
+    javascript.javascriptGenerator.forBlock[DefineLazyData.name(opts, func)] =
+      DefineLazyData.Generator(opts, func) as any;
   },
 
-  name: (func: Pick<QLogicEnvironmentLazyData, 'name'>) =>
-    `lazy_data_${func.name}`,
+  unregister: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentLazyDataSerializable) => {
+    delete Blockly.Blocks[DefineLazyData.name(opts, func)];
+    delete javascript.javascriptGenerator.forBlock[DefineLazyData.name(opts, func)];
+  },
 
-  Block: (_func: QLogicEnvironmentLazyData) => {
+  name: (opts: QLogicExecutionOptionsSerializable, func: Pick<QLogicEnvironmentLazyDataSerializable, 'name'>) =>
+    `${opts.namespace}_lazy_data_${func.name}`,
+
+  Block: (opts: QLogicExecutionOptionsSerializable, _func: QLogicEnvironmentLazyDataSerializable) => {
     const func = appendSystemOptions(_func);
 
     return {
@@ -115,7 +121,6 @@ const DefineLazyData = {
       init() {
         if (this.isInitialized) return;
         this.isInitialized = true;
-        console.log('extraState', this.id, JSON.stringify(this.extraState));
 
         if (!this.extraState) {
           this.extraState = {
@@ -133,23 +138,16 @@ const DefineLazyData = {
       },
 
       saveExtraState(_self) {
-        console.log(_self);
         for (const path of this.extraState.path) {
           const input = this.getInput(identifier.index(path.index));
           path.indexed = !!input?.connection?.getSourceBlock().id;
         }
 
-        console.log(
-          'Saving extraState',
-          this.id,
-          JSON.stringify(this.extraState)
-        );
         return this.extraState;
       },
 
       loadExtraState(extraState) {
         this.extraState = extraState;
-        console.log('extraState', this.id, JSON.stringify(this.extraState));
       },
 
       removeOption(index: number) {
@@ -189,9 +187,7 @@ const DefineLazyData = {
                 block.removeOption(index);
                 block.removeInput(identifier.index(index), true);
                 return value;
-              }
-
-              if (value === '.at') {
+              } else if (value === '.at') {
                 block.removeInput(identifier.index(index), true);
                 block
                   .appendValueInput(identifier.index(index))
@@ -258,7 +254,6 @@ const DefineLazyData = {
             if (block.extraState.path[index]) {
               block.extraState.path[index].id = value;
               block.extraState.path[index].removed = false;
-              console.log('Selected', value, block.extraState);
             }
             if (!option.next) return value;
 
@@ -275,9 +270,8 @@ const DefineLazyData = {
   },
 
   Generator:
-    (func: QLogicEnvironmentLazyData) =>
+    (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentLazyDataSerializable) =>
     (block: DefineLazyDataType, generator: javascript.JavascriptGenerator) => {
-      console.log('block', block.extraState);
       let path = '[';
       for (const pathItem of block.extraState.path) {
         if (pathItem.removed) break;
@@ -296,7 +290,7 @@ const DefineLazyData = {
       }
 
       path += ']';
-      const code = `await ${func.name}(${path})`;
+      const code = `await ${DefineLazyData.name(opts, func)}(${path})`;
       return [code, javascript.Order.ATOMIC];
     },
 };
