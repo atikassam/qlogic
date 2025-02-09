@@ -2,6 +2,7 @@ import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
 import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from './utill';
+import DefineFunc from './define-func';
 
 export const DefineQFunc = {
   register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) => {
@@ -42,6 +43,35 @@ export const DefineQFunc = {
             .appendField('When')
         }
 
+        if (func.allowedNext) {
+          const types = func.allowedNext.map((next) => {
+            if ('qfunc' in next) {
+              return DefineQFunc.name(opts, { name: next.qfunc });
+            } else if ('function' in next) {
+              return DefineFunc.name(opts, { name: next.function });
+            }
+
+            return;
+          }).filter(Boolean) as string[]
+
+          if (types.length) this.setNextStatement(true, types);
+          else this.setNextStatement(false);
+        }
+
+        if (func.allowedPrevious) {
+          const types = func.allowedPrevious.map((next) => {
+            if ('qfunc' in next) {
+              return DefineQFunc.name(opts, { name: next.qfunc });
+            } else if ('function' in next) {
+              return DefineFunc.name(opts, { name: next.function });
+            }
+
+            return;
+          }).filter(Boolean) as string[]
+
+          if (types.length) this.setPreviousStatement(true, types);
+          else this.setPreviousStatement(false);
+        }
 
         this.appendStatementInput('logic')
           .setAlign(Blockly.inputs.Align.RIGHT);

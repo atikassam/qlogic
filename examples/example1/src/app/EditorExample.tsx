@@ -1,7 +1,6 @@
 import {
   QLogicBuilder,
   QLogicBuilderProvider,
-  QLogicCodePreview,
   QLogicEnvironment,
 } from '@qlogic/react';
 import '@qlogic/react/index.esm.css';
@@ -15,6 +14,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import { QLogicCodePreview } from './QLogicCodePreview';
 
 export function EditorExample() {
   const env = useMemo(
@@ -86,9 +86,11 @@ export function EditorExample() {
           {
             conditional: true,
             name: 'CreateCharge',
+            allowedPrevious: [{ qfunc: 'CreateCharge' }],
+            allowedNext: [{ qfunc: 'CreateCharge' }],
             returns: [
-              { name: 'Charge', type: 'number', label: 'Charge' },
-              { name: 'Label', type: 'any', label: 'Label' },
+              { name: 'Charge', type: 'Number', label: 'Charge' },
+              { name: 'Label', type: 'String', label: 'Label' },
               {
                 name: 'Type',
                 type: 'options',

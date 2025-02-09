@@ -23,7 +23,7 @@ export type ArgType =
   | {
       label?: string;
       name: string;
-      type: string;
+      type: string | string[] | 'any';
     };
 
 export type QLogicEnvironmentLazyDataOption = {
@@ -57,6 +57,8 @@ export type QLogicEnvironmentQFuncSerializable = {
   name: string;
   conditional?: boolean;
   returns?: ArgType[];
+  allowedPrevious?: ({ qfunc: string } | { function: string })[];
+  allowedNext?: ({ qfunc: string } | { function: string })[];
 };
 
 export type QLogicEnvironmentQFunc<T = any> =
@@ -128,7 +130,6 @@ export class QLogicEnvironment<T = any> {
     if (!options.namespace) throw new Error('namespace is required');
     else if (!options.namespace.startsWith('qlogic_')) throw new Error('namespace should start with qlogic_');
     else if (!/^[a-z0-9_]+$/i.test(options.namespace)) throw new Error('namespace should be alphanumeric');
-
 
     return new QLogicEnvironment<T>(worker, link, options);
   }

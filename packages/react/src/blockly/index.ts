@@ -1,3 +1,4 @@
+
 import * as Blockly from 'blockly';
 import { toolboxJson } from './toolbox';
 import './index.css';
@@ -8,6 +9,10 @@ import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
 import DefineQfunc from './blocks/define-qfunc';
 import DefineLazyData from './blocks/define-lazy-data';
+
+// @ts-expect-error - Blockly plugin-strict-connection-checker is not typed
+import {pluginInfo as StrictConnectionsPluginInfo} from '@blockly/plugin-strict-connection-checker';
+
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -76,6 +81,9 @@ export function init(opts: {
   // Inject Blockly.
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox,
+    plugins: {
+      ...StrictConnectionsPluginInfo
+    },
     renderer: 'thrasos',
     sounds: sounds ?? false,
     zoom: {
@@ -87,7 +95,11 @@ export function init(opts: {
     trashcan: false,
     theme: theme,
   });
+
+  Blockly.Events.disable();
   Blockly.serialization.workspaces.load(initialState ?? startBlocks, workspace);
+  Blockly.Events.enable();
+
   workspace.zoomToFit();
 
   const allowedRootBlocks = opts.env?.options?.allowedRootBlocks?.map((b) => {
@@ -142,99 +154,7 @@ function disableBlocks(block: Blockly.Block, disabled: boolean) {
 const startBlocks = {
   blocks: {
     languageVersion: 0,
-    blocks: [
-      {
-        type: 'variables_set',
-        x: 10,
-        y: 10,
-        fields: {
-          VAR: { id: 'Count' },
-        },
-        inputs: {
-          VALUE: {
-            block: {
-              type: 'math_number',
-              fields: { NUM: 1 },
-            },
-          },
-        },
-        next: {
-          block: {
-            type: 'controls_whileUntil',
-            fields: { MODE: 'WHILE' },
-            inputs: {
-              BOOL: {
-                block: {
-                  type: 'logic_compare',
-                  fields: { OP: 'LTE' },
-                  inputs: {
-                    A: {
-                      block: {
-                        type: 'variables_get',
-                        fields: {
-                          VAR: { id: 'Count' },
-                        },
-                      },
-                    },
-                    B: {
-                      block: {
-                        type: 'math_number',
-                        fields: { NUM: 3 },
-                      },
-                    },
-                  },
-                },
-              },
-              DO: {
-                block: {
-                  type: 'text_print',
-                  inputs: {
-                    TEXT: {
-                      block: {
-                        type: 'text',
-                        fields: { TEXT: 'Hello World!' },
-                      },
-                    },
-                  },
-                  next: {
-                    block: {
-                      type: 'variables_set',
-                      fields: {
-                        VAR: { id: 'Count' },
-                      },
-                      inputs: {
-                        VALUE: {
-                          block: {
-                            type: 'math_arithmetic',
-                            fields: { OP: 'ADD' },
-                            inputs: {
-                              A: {
-                                block: {
-                                  type: 'variables_get',
-                                  fields: {
-                                    VAR: { id: 'Count' },
-                                  },
-                                },
-                              },
-                              B: {
-                                block: {
-                                  type: 'math_number',
-                                  fields: { NUM: 1 },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
+    blocks: [],
   },
   variables: [],
 };

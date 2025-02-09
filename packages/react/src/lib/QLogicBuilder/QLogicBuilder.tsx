@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Box, BoxProps, CardProps } from '@mui/material';
 import { init } from '../../blockly';
 import * as Blockly from 'blockly';
@@ -15,10 +15,10 @@ export type QLogicBuilderProps = {
 export function QLogicBuilder(props: QLogicBuilderProps) {
   const { ContainerProps, height = 400, bgcolor, sounds } = props;
   const ctx = useQLogicBuilder();
+  const { workspace, setWorkspace } = ctx;
 
   const blocklyDivRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
-  const [workspace, setWorkspace] = useState<Blockly.Workspace | null>(null);
 
   const regenerate = useCallback(_.throttle((_e: any) => {
     if (!workspace || (Blockly.getMainWorkspace() as any).isDragging()) {
