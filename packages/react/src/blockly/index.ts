@@ -9,10 +9,7 @@ import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/define-func';
 import DefineQfunc from './blocks/define-qfunc';
 import DefineLazyData from './blocks/define-lazy-data';
-
-// @ts-expect-error - Blockly plugin-strict-connection-checker is not typed
-import {pluginInfo as StrictConnectionsPluginInfo} from '@blockly/plugin-strict-connection-checker';
-
+import { StrictConnectionCheckerPluginInfo } from './plugins/TypeCheck';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
@@ -82,7 +79,7 @@ export function init(opts: {
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox,
     plugins: {
-      ...StrictConnectionsPluginInfo
+      ...StrictConnectionCheckerPluginInfo
     },
     renderer: 'thrasos',
     sounds: sounds ?? false,

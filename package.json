@@ -7,7 +7,6 @@
   },
   "private": true,
   "dependencies": {
-    "@blockly/plugin-strict-connection-checker": "^5.0.12",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^6.2.1",
