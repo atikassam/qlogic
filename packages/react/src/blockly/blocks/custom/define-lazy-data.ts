@@ -5,7 +5,7 @@ import {
   QLogicEnvironmentLazyDataOption,
   QLogicEnvironmentLazyDataSerializable,
   QLogicExecutionOptionsSerializable,
-} from '../../lib/QLogicEnvironment';
+} from '../../../lib/QLogicEnvironment';
 
 type DefineLazyDataType = Blockly.Block & {
   isInitialized: boolean;

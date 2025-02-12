@@ -1,7 +1,7 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../lib/QLogicEnvironment';
-import { optionsToBlockDropDown } from './utill';
+import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../../lib/QLogicEnvironment';
+import { optionsToBlockDropDown } from '../utill';
 import DefineFunc from './define-func';
 
 export const DefineQFunc = {
@@ -33,6 +33,7 @@ export const DefineQFunc = {
    */
   Block: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) =>
     ({
+      applyStrictTypeCheck: [Blockly.ConnectionType.NEXT_STATEMENT, Blockly.ConnectionType.PREVIOUS_STATEMENT],
       init: function () {
         // Set the block's label with the function name
         this.appendDummyInput(func.name).appendField(func.name);

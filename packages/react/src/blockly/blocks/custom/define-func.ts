@@ -1,7 +1,7 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentFuncSerializable, QLogicExecutionOptionsSerializable } from '../../lib/QLogicEnvironment';
-import { optionsToBlockDropDown } from './utill';
+import { QLogicEnvironmentFuncSerializable, QLogicExecutionOptionsSerializable } from '../../../lib/QLogicEnvironment';
+import { optionsToBlockDropDown } from '../utill';
 
 export const DefineFunc = {
   register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) => {
@@ -31,6 +31,7 @@ export const DefineFunc = {
    */
   Block: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentFuncSerializable) =>
     ({
+      applyStrictTypeCheck: [Blockly.ConnectionType.NEXT_STATEMENT, Blockly.ConnectionType.PREVIOUS_STATEMENT],
       init: function () {
         // Set the block's label with the function name
         this.appendDummyInput().appendField(func.name);
@@ -73,7 +74,33 @@ export const DefineFunc = {
             func.returnType === 'any' ? null : func.returnType
           );
         }
+
+        this.setOnChange(function (event: any) {
+          if (event.type === Blockly.Events.BLOCK_MOVE) {
+            // @ts-expect-error - Ignore the error
+            this.updateConnections(func);
+          }
+        });
       },
+      updateConnections: function () {
+        const isConnectedAsValue = this.outputConnection?.isConnected();
+
+        if (isConnectedAsValue) {
+          // If connected as a value, remove statement connections
+          this.setOutput(true, func.returnType === 'any' ? null : func.returnType);
+          this.setPreviousStatement(false);
+          this.setNextStatement(false);
+        } else {
+
+          // If not connected as a value, allow statements
+          if (func.returnType && !this.previousConnection?.isConnected() && !this.nextConnection?.isConnected())
+            this.setOutput(true, func.returnType === 'any' ? null : func.returnType);
+          else this.setOutput(false);
+
+          this.setPreviousStatement(true, null);
+          this.setNextStatement(true, null);
+        }
+      }
     } as any),
 
   /**
@@ -101,8 +128,12 @@ export const DefineFunc = {
 
       // Return the function call as a code string
       const code = `await ${DefineFunc.name(opts, func)}(${args.join(', ')})`;
-      if (!func.returnType) return code + ';\n'; // Add semicolon for expressions
-      return [code, javascript.Order.ATOMIC]; // Add newline only for statements
+
+      if (block.outputConnection?.isConnected()) {
+        return [code, javascript.Order.AWAIT];
+      }
+
+      return code + ';\n';
     },
 };
 

@@ -3,9 +3,9 @@ import SparkMD5 from 'spark-md5';
 import * as Comlink from 'comlink';
 import Worker from 'web-worker';
 
-import DefineLazyData from '../blockly/blocks/define-lazy-data';
-import DefineFunc from '../blockly/blocks/define-func';
-import DefineQfunc from '../blockly/blocks/define-qfunc';
+import DefineLazyData from '../blockly/blocks/custom/define-lazy-data';
+import DefineFunc from '../blockly/blocks/custom/define-func';
+import DefineQfunc from '../blockly/blocks/custom/define-qfunc';
 
 export type QLogicExecutionCtx<T = any> = {
   data: T;

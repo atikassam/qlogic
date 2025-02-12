@@ -1,14 +1,27 @@
 import * as Blockly from 'blockly/core';
 
+// Define applyStricTypeCheck property for block
+declare module 'blockly/core' {
+  interface Block {
+    applyStrictTypeCheck: Blockly.ConnectionType[];
+  }
+}
 
 export class StrictConnectionChecker extends Blockly.ConnectionChecker {
-
-
   override doTypeChecks(a: Blockly.Connection, b: Blockly.Connection) {
     const checkArrayOne = a.getCheck();
     const checkArrayTwo = b.getCheck();
+    const blockOne = a.getSourceBlock();
+    const blockTwo = b.getSourceBlock();
+    // const inputOneType = a.getParentInput()?.type;
+    // const inputTwoType = b.getParentInput()?.type;
 
-    if (checkArrayOne === null || checkArrayTwo === null)
+    const isStrictCheckDisabled =
+      !blockOne?.applyStrictTypeCheck?.includes(a.type) &&
+      !blockTwo?.applyStrictTypeCheck?.includes(b.type);
+
+    console.log('isStrictCheckDisabled', isStrictCheckDisabled);
+    if (isStrictCheckDisabled && (!checkArrayOne || !checkArrayTwo))
       return true;
 
     if (!checkArrayOne || !checkArrayTwo) {
@@ -34,7 +47,7 @@ export const registrationName = 'StrictConnectionChecker';
 Blockly.registry.register(
   registrationType,
   registrationName,
-  StrictConnectionChecker,
+  StrictConnectionChecker
 );
 
 export const StrictConnectionCheckerPluginInfo = {

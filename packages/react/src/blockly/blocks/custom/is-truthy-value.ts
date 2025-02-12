@@ -7,7 +7,7 @@ export default {
     init: function () {
       this.appendValueInput('NAME')
         .appendField('Boolean');
-      this.setOutput(true, null);
+      this.setOutput(true, ['Boolean']);
       this.setTooltip('');
       this.setHelpUrl('');
       this.setColour(225);
