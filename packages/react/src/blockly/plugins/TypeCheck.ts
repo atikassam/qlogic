@@ -20,7 +20,6 @@ export class StrictConnectionChecker extends Blockly.ConnectionChecker {
       !blockOne?.applyStrictTypeCheck?.includes(a.type) &&
       !blockTwo?.applyStrictTypeCheck?.includes(b.type);
 
-    console.log('isStrictCheckDisabled', isStrictCheckDisabled);
     if (isStrictCheckDisabled && (!checkArrayOne || !checkArrayTwo))
       return true;
 

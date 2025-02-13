@@ -117,14 +117,20 @@ export function init(opts: {
     const block: Blockly.Block | null = workspace.getBlockById(event.blockId as string);
     if (!block || !block.type) return;
 
-    const rootBlocks = workspace.getTopBlocks();
-
-    const disabled =
-      (typeof opts.env.options.maxRootBlocks === 'number' && rootBlocks.length > opts.env.options.maxRootBlocks)
-      || (!allowedRootBlocks.includes(block.type) && !block.getParent())
+    const disabled = (!allowedRootBlocks.includes(block.type) && !block.getParent())
       || !!block.getPreviousBlock()?.hasDisabledReason('Block must be attached to an allowed block');
 
     disableBlocks(block, disabled);
+
+    const rootBlocks = workspace.getTopBlocks(true);
+
+    rootBlocks.forEach((block, index) => {
+      if (typeof opts.env.options.maxRootBlocks !== 'number') return;
+      if (index >= opts.env.options.maxRootBlocks) {
+        console.log('Disabling block', block);
+        disableBlocks(block, true);
+      }
+    })
   });
 
   return {
