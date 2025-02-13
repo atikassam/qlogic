@@ -21,6 +21,7 @@ export function EditorExample() {
     () =>
       QLogicEnvironment.create<{ title: string }>({
         namespace: QLogicEnvironment.toNamespace('qlogic_a7'),
+        maxRootBlocks: 1,
         allowedRootBlocks: [{ qfunc: 'CreateCharge' }],
         lazyData: [
           {

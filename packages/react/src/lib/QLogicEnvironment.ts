@@ -81,6 +81,7 @@ export type QLogicEnvironmentNamespace = `qlogic_${string}`;
 
 export type QLogicExecutionOptionsSerializable = {
   namespace: QLogicEnvironmentNamespace;
+  maxRootBlocks?: number;
   allowedRootBlocks?: ({ qfunc: string } | { function: string })[];
   qfuns?: QLogicEnvironmentQFuncSerializable[];
   functions?: QLogicEnvironmentFuncSerializable[];

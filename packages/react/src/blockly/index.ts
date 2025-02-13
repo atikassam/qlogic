@@ -114,14 +114,15 @@ export function init(opts: {
     )
       return;
 
-    const block = workspace.getBlockById(event.blockId as string);
+    const block: Blockly.Block | null = workspace.getBlockById(event.blockId as string);
     if (!block || !block.type) return;
 
+    const rootBlocks = workspace.getTopBlocks();
+
     const disabled =
-      (!allowedRootBlocks.includes(block.type) && !block.getParent()) ||
-      !!block
-        .getPreviousBlock()
-        ?.hasDisabledReason('Block must be attached to an allowed block');
+      (typeof opts.env.options.maxRootBlocks === 'number' && rootBlocks.length > opts.env.options.maxRootBlocks)
+      || (!allowedRootBlocks.includes(block.type) && !block.getParent())
+      || !!block.getPreviousBlock()?.hasDisabledReason('Block must be attached to an allowed block');
 
     disableBlocks(block, disabled);
   });
