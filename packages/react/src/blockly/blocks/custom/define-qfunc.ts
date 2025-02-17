@@ -1,8 +1,8 @@
 import * as Blockly from 'blockly';
 import * as javascript from 'blockly/javascript';
-import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../../lib/QLogicEnvironment';
 import { optionsToBlockDropDown } from '../utill';
 import DefineFunc from './define-func';
+import { QLogicEnvironmentQFuncSerializable, QLogicExecutionOptionsSerializable } from '../../../lib/types';
 
 export const DefineQFunc = {
   register: (opts: QLogicExecutionOptionsSerializable, func: QLogicEnvironmentQFuncSerializable) => {

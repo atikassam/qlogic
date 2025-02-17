@@ -1,5 +1,6 @@
 import * as Blockly from 'blockly';
-import { OptionArgType } from '../../lib/QLogicEnvironment';
+
+import { OptionArgType } from '../../lib/types';
 
 export const optionsToBlockDropDown = (
   block: Blockly.Block,

@@ -4,8 +4,8 @@ import * as javascript from 'blockly/javascript';
 import {
   QLogicEnvironmentLazyDataOption,
   QLogicEnvironmentLazyDataSerializable,
-  QLogicExecutionOptionsSerializable,
-} from '../../../lib/QLogicEnvironment';
+  QLogicExecutionOptionsSerializable
+} from '../../../lib/types';
 
 type DefineLazyDataType = Blockly.Block & {
   isInitialized: boolean;

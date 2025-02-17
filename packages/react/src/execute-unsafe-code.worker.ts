@@ -6,14 +6,9 @@ import('./polyfill').then(async () => {
   const { initBlocklyWithOptions }  = await import('./blockly');
   const Blockly = await import('blockly');
 
-  Comlink.expose({
-    evaluate: async (logic: any, options: any, names: any, functions: any, data: any) => {
+  const exports = {
+    execute: async (code: string, names: any, functions: any) => {
       try {
-        initBlocklyWithOptions(options);
-        const workspace = new Blockly.Workspace();
-        Blockly.serialization.workspaces.load(logic, workspace);
-        const code = javascriptGenerator.workspaceToCode(workspace);
-
         const compartment = new Compartment({
           globals: {
             ...Object.fromEntries(
@@ -34,5 +29,19 @@ import('./polyfill').then(async () => {
         return { success: false, error: (error as Error).message };
       }
     },
-  });
+    evaluate: async (logic: any, options: any, names: any, functions: any, data: any) => {
+      try {
+        initBlocklyWithOptions(options);
+        const workspace = new Blockly.Workspace();
+        Blockly.serialization.workspaces.load(logic, workspace);
+        const code = javascriptGenerator.workspaceToCode(workspace);
+
+        return await exports.execute(code, names, functions);
+      } catch (error) {
+        console.log('Error:', error);
+        return { success: false, error: (error as Error).message };
+      }
+    },
+  }
+  Comlink.expose(exports);
 })

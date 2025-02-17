@@ -3,13 +3,14 @@ import * as Blockly from 'blockly';
 import { toolboxJson } from './toolbox';
 import './index.css';
 import { theme } from './theme';
-import { QLogicEnvironment, QLogicExecutionOptionsSerializable } from '../lib/QLogicEnvironment';
+import { QLogicEnvironment } from '../lib/QLogicEnvironment';
 import IsTruthyValue from './blocks/custom/is-truthy-value';
 import * as javascript from 'blockly/javascript';
 import DefineFunc from './blocks/custom/define-func';
 import DefineQfunc from './blocks/custom/define-qfunc';
 import DefineLazyData from './blocks/custom/define-lazy-data';
 import { StrictConnectionCheckerPluginInfo } from './plugins/TypeCheck';
+import { QLogicExecutionOptionsSerializable } from '../lib/types';
 
 (function setupCommonBlocks() {
   Blockly.common.defineBlocks({
