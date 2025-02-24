@@ -3,6 +3,7 @@ export type QLogicExecutionCtx<T = any> = {
 };
 export type OptionArgType = {
   label?: string;
+  key: string;
   name: string;
   type: 'options';
   options: { label: string; value: any }[];
@@ -12,6 +13,7 @@ export type ArgType =
   | {
       label?: string;
       name: string;
+      key: string;
       type: string | string[] | 'any';
     };
 export type QLogicEnvironmentLazyDataOption = {
@@ -40,6 +42,7 @@ export type QLogicEnvironmentLazyData<T = any> =
   };
 export type QLogicEnvironmentQFuncSerializable = {
   name: string;
+  label: string;
   conditional?: boolean;
   returns?: ArgType[];
   allowedPrevious?: ({ qfunc: string } | { function: string })[];
@@ -50,6 +53,7 @@ export type QLogicEnvironmentQFunc<T = any> =
     func: (option: QLogicExecutionCtx<T>, ...args: any[]) => any;
   };
 export type QLogicEnvironmentFuncSerializable = {
+  label: string;
   name: string;
   args?: ArgType[];
   returnType?: string;

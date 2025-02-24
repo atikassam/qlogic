@@ -34,13 +34,13 @@ export const DefineFunc = {
       applyStrictTypeCheck: [Blockly.ConnectionType.NEXT_STATEMENT, Blockly.ConnectionType.PREVIOUS_STATEMENT],
       init: function () {
         // Set the block's label with the function name
-        this.appendDummyInput().appendField(func.name);
+        this.appendDummyInput().appendField(func.label);
 
         // Add inputs for each function argument
         func.args?.forEach((arg) => {
           if (arg.type === 'options' && 'options' in arg) {
             this.appendDummyInput(arg.name)
-              .appendField(arg.name)
+              .appendField(arg.label ?? arg.name)
               .appendField(
                 optionsToBlockDropDown(this, arg.options),
                 arg.name
@@ -52,7 +52,7 @@ export const DefineFunc = {
           // Use appendValueInput for non-option arguments
           const input = this.appendValueInput(arg.name)
             .setAlign(Blockly.inputs.Align.RIGHT)
-            .appendField(arg.name);
+            .appendField(arg.label);
 
           if (arg.type && arg.type !== 'any') {
             input.setCheck(arg.type); // Set input type validation
@@ -126,8 +126,10 @@ export const DefineFunc = {
           }
         }) || [];
 
+      const argObj = `{${func.args?.map((arg, i) => `${arg.key}: ${args[i]}`).join(', ')}}`;
+
       // Return the function call as a code string
-      const code = `await ${DefineFunc.name(opts, func)}(${args.join(', ')})`;
+      const code = `await ${DefineFunc.name(opts, func)}(${argObj})`;
 
       if (block.outputConnection?.isConnected()) {
         return [code, javascript.Order.AWAIT];

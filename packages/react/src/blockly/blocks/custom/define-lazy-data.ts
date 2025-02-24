@@ -128,7 +128,8 @@ const DefineLazyData = {
           };
         }
 
-        this.appendDummyInput(func.name).appendField(func.name);
+        this.appendDummyInput(func.name)
+          .appendField(func.label ?? func.name);
 
         this.setOutput(true);
         this.setInputsInline(true);

@@ -84,13 +84,15 @@ export function EditorExample() {
         qfuns: [
           {
             conditional: true,
+            label: 'Create Charge',
             name: 'CreateCharge',
             allowedPrevious: [{ qfunc: 'CreateCharge' }],
             allowedNext: [{ qfunc: 'CreateCharge' }],
             returns: [
-              { name: 'Charge', type: 'Number', label: 'Charge' },
-              { name: 'Label', type: 'String', label: 'Label' },
+              { key: 'charge', name: 'Charge', type: 'Number', label: 'Charge' },
+              { key: 'label', name: 'Label', type: 'String', label: 'Label' },
               {
+                key: 'type',
                 name: 'Type',
                 type: 'options',
                 label: 'Type',
@@ -116,17 +118,21 @@ export function EditorExample() {
         ],
         functions: [
           {
+            label: 'Add',
             name: 'add',
             args: [
               {
+                key: 'a',
                 name: 'a',
                 type: 'number',
               },
               {
+                key: 'b',
                 name: 'b',
                 type: 'number',
               },
               {
+                key: 'type',
                 name: 'Type',
                 type: 'options',
                 label: 'Type',
@@ -142,9 +148,11 @@ export function EditorExample() {
             func: (option, a: number, b: number) => a + b,
           },
           {
+            label: 'Alert',
             name: 'alert',
             args: [
               {
+                key: 'msg',
                 name: 'msg',
                 type: 'any',
               },

@@ -36,7 +36,7 @@ export const DefineQFunc = {
       applyStrictTypeCheck: [Blockly.ConnectionType.NEXT_STATEMENT, Blockly.ConnectionType.PREVIOUS_STATEMENT],
       init: function () {
         // Set the block's label with the function name
-        this.appendDummyInput(func.name).appendField(func.name);
+        this.appendDummyInput(func.name).appendField(func.label);
 
         if (func.conditional) {
           this.appendValueInput('conditional')
